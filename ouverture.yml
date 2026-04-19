@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: "Ouverture d'une nouvelle collectivité"
+  description: >
+    Fonctionnalité permettant à la fédération d'instruire et d'autoriser
+    l'ouverture d'une nouvelle collectivité agricole. Les conditions requises sont :
+    au moins 10 membres inscrits avec 6 mois d'antériorité, les postes spécifiques
+    pourvus, l'autorisation formelle de la fédération, et la définition de la
+    localité ainsi que la spécialité agricole.
+  version: 1.0.0
+
+  servers :
+    - url: http://localhost/8080
+
+  paths:
+    /collectivites:
+      post:
+        summary: Soumettre une demande d'ouverture de collectivité
+        description :
+          Crée une demande d'ouverture pour une nouvelle collectivité agricole.
+          Le système vérifie automatiquement toutes les conditions d'éligibilité
+          (nombre de membres, antériorité de 6 mois, postes spécifiques pourvus,
+          localité et spécialité agricole renseignées).
+
+        requestBody :
+          required : true
+          content :
+            application/json:
+              schema:
+                $ref: '#/components/shemas/DemandOuvertureRequest'
+              example:
+                localite: "Antananarivo"
+
+        responses :
+          '201' :
+            description: Demande soumise avec succes , en attente 'autorisation
+            content :
+              application/json:
+                schema :
+                  $ref: '#/components/schema/DemandeOuvertureResponse'
+          '400' :
+            $ref: '#/components/responses/BadRequest'
+          '422' :
+            description : Condition d'eligibilite non satisfaites
+            content :
+              application/json:
+                schema:
+                  $ref: '#/components/schema/ErreurEligibilite'
+      get:
+        summary : Lister les collectivites
+        description : Retourne la liste de toutes les collectivites enregistres
+        operationId :  listerCollectivites
+        parameters:
+          - $ref: '#/components/parameters/PageParam'
+          - $ref: '#/components/parameters/LimitParam'
+          - name: statut
+            in: query
+            schema:
+              $ref: '#/components/schemas/StatutDemande'
+          - name: localite
+            in: query
+            schema:
+              type: string
+          - name: specialite_agricole
+            in: query
+            schema:
+              $ref: '#/components/schemas/SpecialiteAgricole'
+        responses:
+          '200':
+            description: Liste des collectivités
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/PageCollectivites'
+
+    /collectivites/{collectivite_id}:
+      get:
+        tags: [ Collectivités ]
+        summary: Obtenir les détails d'une collectivité
+        operationId: obtenirCollectivite
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+        responses:
+          '200':
+            description: Détails de la collectivité
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Collectivite'
+          '404':
+            $ref: '#/components/responses/NotFound'
+
+    /collectivites/{collectivite_id}/eligibilite:
+      get:
+        tags: [ Collectivités ]
+        summary: Vérifier l'éligibilité d'une demande
+        operationId: verifierEligibilite
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+        responses:
+          '200':
+            description: Résultat du contrôle d'éligibilité
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ResultatEligibilite'
+          '404':
+            $ref: '#/components/responses/NotFound'
+
+    /collectivites/{collectivite_id}/autorisation:
+      post:
+        tags: [ Collectivités ]
+        summary: Délivrer ou refuser l'autorisation formelle d'ouverture
+        operationId: delivrerAutorisation
+        parameters:
+          - $ref: '#/components/parameters/CollectiviteId'
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionAutorisation'
+        responses:
+          '200':
+            description: Décision enregistrée
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AutorisationResponse'
+          '400':
+            $ref: '#/components/responses/BadRequest'
+          '403':
+            $ref: '#/components/responses/Forbidden'
+          '404':
+            $ref: '#/components/responses/NotFound'
+          '409':
+            description: Une décision a déjà été prise pour cette collectivité
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Erreur'
