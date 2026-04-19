@@ -1,0 +1,208 @@
+openapi : 3.0.3
+info:
+  title: "B - Admission d'un nouveau membre dans une collectivité"
+  description: >
+    Fonctionnalité gérant l'admission, le changement de collectivité et la
+    démission d'un membre. Conditions d'admission : être parrainé par un membre
+    confirmé avec plus de 90 jours d'ancienneté, fournir les informations
+    personnelles complètes, et régler les frais d'adhésion de 50 000 MGA.
+  version: 1.0.
+
+servers:
+  - url: https://localhost:8080
+
+paths:
+
+  /collectivites/{collectivite_id}/membres:
+    post:
+      tags: [Membres]
+      summary: Admettre un nouveau membre dans une collectivité
+      operationId: admettreMembre
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmissionMembreRequest'
+            example:
+              parrain_id: "MBR-005"
+              informations_personnelles:
+                nom: "Rakoto"
+                prenoms: "Jean Pierre"
+                date_naissance: "1990-05-14"
+                genre: "MASCULIN"
+                adresse: "Lot II H 45, Antananarivo"
+                metier: "Agriculteur"
+                telephone: "+261341234567"
+                email: "jean.rakoto@example.mg"
+              paiement:
+                mode: "MOBILE_MONEY"
+                reference_transaction: "OM-2026-789456"
+                montant: 50000
+      responses:
+        '201':
+          description: Membre admis avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Conditions d'admission non satisfaites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErreurAdmission'
+
+    get:
+      tags: [ Membres ]
+      summary: Lister les membres d'une collectivité
+      operationId: listerMembres
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: poste
+          in: query
+          schema:
+            $ref: '#/components/schemas/PosteSpecifique'
+        - name: statut
+          in: query
+          schema:
+            $ref: '#/components/schemas/StatutMembre'
+      responses:
+        '200':
+          description: Liste des membres
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageMembres'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/membres/{membre_id}:
+    get:
+      tags: [ Membres ]
+      summary: Obtenir le profil d'un membre
+      operationId: obtenirMembre
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      responses:
+        '200':
+          description: Profil complet du membre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [ Membres ]
+      summary: Mettre à jour les informations personnelles d'un membre
+      operationId: mettreAJourMembre
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MiseAJourMembreRequest'
+      responses:
+        '200':
+          description: Informations mises à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/membres/{membre_id}/changement-collectivite:
+    post:
+      tags: [ Membres ]
+      summary: Changer un membre de collectivité
+      operationId: changerCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangementCollectiviteRequest'
+            example:
+              nouvelle_collectivite_id: "COL-2026-0015"
+              motif: "Déménagement à Fianarantsoa"
+      responses:
+        '200':
+          description: Changement de collectivité effectué
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangementCollectiviteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/membres/{membre_id}/demission:
+    post:
+      tags: [ Membres ]
+      summary: Enregistrer la démission d'un membre
+      operationId: enregistrerDemission
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemissionRequest'
+            example:
+              motif: "Raisons personnelles"
+              date_effet: "2026-05-01"
+      responses:
+        '200':
+          description: Démission enregistrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemissionResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Le membre est déjà démissionnaire
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+  /membres/{membre_id}/anteriorite:
+    get:
+      tags: [ Membres ]
+      summary: Vérifier l'antériorité d'un membre dans la fédération
+      operationId: verifierAnteriorite
+      parameters:
+        - $ref: '#/components/parameters/MembreId'
+      responses:
+        '200':
+          description: Résultat de la vérification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultatAnteriorite'
+        '404':
+          $ref: '#/components/responses/NotFound'
