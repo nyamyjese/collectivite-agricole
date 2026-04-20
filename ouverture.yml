@@ -27,17 +27,17 @@ info:
           content :
             application/json:
               schema:
-                $ref: '#/components/shemas/DemandOuvertureRequest'
+                $ref: '#/components/schemas/DemandeOuvertureRequest'
               example:
                 localite: "Antananarivo"
 
         responses :
           '201' :
-            description: Demande soumise avec succes , en attente 'autorisation
+            description: Demande soumise avec succes , en attente d'autorisation
             content :
               application/json:
                 schema :
-                  $ref: '#/components/schema/DemandeOuvertureResponse'
+                  $ref: '#/components/schemas/DemandeOuvertureResponse'
           '400' :
             $ref: '#/components/responses/BadRequest'
           '422' :
@@ -45,7 +45,7 @@ info:
             content :
               application/json:
                 schema:
-                  $ref: '#/components/schema/ErreurEligibilite'
+                  $ref: '#/components/schemas/ErreurEligibilite'
       get:
         summary : Lister les collectivites
         description : Retourne la liste de toutes les collectivites enregistres
@@ -139,3 +139,297 @@ info:
               application/json:
                 schema:
                   $ref: '#/components/schemas/Erreur'
+
+components:
+  schemas:
+
+    DemandeOuvertureRequest:
+      type: object
+      required: [localite, specialite_agricole, membres_fondateurs]
+      properties:
+        localite:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "Antananarivo"
+        specialite_agricole:
+          $ref: '#/components/schemas/SpecialiteAgricole'
+        membres_fondateurs:
+          type: array
+          minItems: 10
+          description: Liste des membres fondateurs (minimum 10, tous avec ≥ 6 mois d'antériorité)
+          items:
+            $ref: '#/components/schemas/MembreFondateur'
+
+    MembreFondateur:
+      type: object
+      required: [membre_id, poste]
+      properties:
+        membre_id:
+          type: string
+          example: "MBR-001"
+        poste:
+          $ref: '#/components/schemas/PosteSpecifique'
+
+    DemandeOuvertureResponse:
+      type: object
+      properties:
+        collectivite_id:
+          type: string
+          example: "COL-2026-0042"
+        statut:
+          $ref: '#/components/schemas/StatutDemande'
+        localite:
+          type: string
+          example: "Antananarivo"
+        specialite_agricole:
+          $ref: '#/components/schemas/SpecialiteAgricole'
+        date_soumission:
+          type: string
+          format: date-time
+        eligibilite:
+          $ref: '#/components/schemas/ConditionsEligibilite'
+        message:
+          type: string
+          example: "Demande soumise. En attente d'autorisation formelle de la fédération."
+
+    Collectivite:
+      type: object
+      properties:
+        collectivite_id:
+          type: string
+          example: "COL-2026-0042"
+        numero:
+          type: string
+          description: Numéro unique de la collectivité
+          example: "COL-042"
+        nom:
+          type: string
+          example: "Collectivité Maraîchère Tana Nord"
+        localite:
+          type: string
+          example: "Antananarivo"
+        specialite_agricole:
+          $ref: '#/components/schemas/SpecialiteAgricole'
+        statut:
+          $ref: '#/components/schemas/StatutDemande'
+        date_creation:
+          type: string
+          format: date
+          description: Date de création conservée par la fédération
+        nombre_membres:
+          type: integer
+          example: 10
+        autorisation:
+          $ref: '#/components/schemas/AutorisationResponse'
+
+    PageCollectivites:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 35
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collectivite'
+
+    ResultatEligibilite:
+      type: object
+      properties:
+        collectivite_id:
+          type: string
+        eligible:
+          type: boolean
+        conditions:
+          $ref: '#/components/schemas/ConditionsEligibilite'
+        membres_non_eligibles:
+          type: array
+          description: Membres n'ayant pas 6 mois d'antériorité
+          items:
+            type: object
+            properties:
+              membre_id:
+                type: string
+              mois_anciennete:
+                type: integer
+              mois_manquants:
+                type: integer
+        postes_manquants:
+          type: array
+          description: Postes spécifiques obligatoires non pourvus
+          items:
+            $ref: '#/components/schemas/PosteSpecifique'
+
+    ConditionsEligibilite:
+      type: object
+      properties:
+        membres_suffisants:
+          type: boolean
+          description: Au moins 10 membres inscrits
+        anteriorite_respectee:
+          type: boolean
+          description: Tous les membres ont ≥ 6 mois d'ancienneté
+        postes_specifiques_pourvus:
+          type: boolean
+          description: Président, président adjoint, trésorier et secrétaire désignés
+        localite_definie:
+          type: boolean
+        specialite_definie:
+          type: boolean
+
+    DecisionAutorisation:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [APPROUVEE, REFUSEE]
+        commentaire:
+          type: string
+          maxLength: 500
+          example: "Toutes les conditions sont remplies."
+        agent_id:
+          type: string
+          example: "AGT-FED-010"
+
+    AutorisationResponse:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum: [APPROUVEE, REFUSEE]
+        date_decision:
+          type: string
+          format: date-time
+        numero_autorisation:
+          type: string
+          description: Présent uniquement si approuvée
+          example: "AUTH-2026-00042"
+        commentaire:
+          type: string
+
+    ErreurEligibilite:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "ELIGIBILITY_ERROR"
+        message:
+          type: string
+          example: "Les conditions d'éligibilité ne sont pas toutes remplies."
+        details:
+          type: array
+          items:
+            type: string
+          example:
+            - "Nombre de membres insuffisant : 8 sur 10 requis"
+            - "Le membre MBR-009 n'a que 3 mois d'antériorité (6 requis)"
+            - "Poste TRESORIER non pourvu"
+
+    SpecialiteAgricole:
+      type: string
+      enum:
+        - MARAICHAGE
+        - CEREALES
+        - ELEVAGE_BOVIN
+        - ELEVAGE_AVICOLE
+        - APICULTURE
+        - ARBORICULTURE
+        - RIZICULTURE
+        - HORTICULTURE
+        - PISCICULTURE
+        - CULTURES_INDUSTRIELLES
+      example: "MARAICHAGE"
+
+    PosteSpecifique:
+      type: string
+      description: >
+        Hiérarchie : président, président adjoint, trésorier, secrétaire,
+        membre confirmé, membre junior. Les postes de président, président
+        adjoint, trésorier et secrétaire ne peuvent être occupés que par
+        un seul membre à la fois.
+      enum:
+        - PRESIDENT
+        - PRESIDENT_ADJOINT
+        - TRESORIER
+        - SECRETAIRE
+        - MEMBRE_CONFIRME
+        - MEMBRE_JUNIOR
+      example: "PRESIDENT"
+
+    StatutDemande:
+      type: string
+      enum:
+        - EN_ATTENTE
+        - EN_COURS_DE_VALIDATION
+        - AUTORISEE
+        - REFUSEE
+        - ACTIVE
+        - SUSPENDUE
+
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  parameters:
+    CollectiviteId:
+      name: collectivite_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "COL-2026-0042"
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    Forbidden:
+      description: Accès non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
