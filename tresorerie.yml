@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: "D - Situation de trésorerie"
+  description: >
+    Gestion des comptes de trésorerie de chaque collectivité et de la fédération.
+    Trois types de comptes possibles : CAISSE (unique par entité, stocke les espèces),
+    BANCAIRE (plusieurs possibles, numéro de 23 chiffres), MOBILE_MONEY (plusieurs possibles).
+    Chaque compte possède un solde en Ariary (MGA).
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080
+
+paths:
+  /collectivites/{collectivite_id}/comptes:
+    post:
+      tags: [D - Trésorerie]
+      summary: Ajouter un compte de trésorerie à une collectivité
+      description: >
+        Crée un nouveau compte de trésorerie. La règle d'unicité de la caisse est
+        vérifiée : une collectivité ne peut posséder qu'une seule CAISSE.
+        Plusieurs comptes BANCAIRE ou MOBILE_MONEY sont autorisés.
+      operationId: ajouterCompteCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompteRequest'
+            examples:
+              caisse:
+                summary: Exemple — Caisse
+                value:
+                  type_compte: "CAISSE"
+                  solde_initial: 0
+              bancaire:
+                summary: Exemple — Compte bancaire BOA
+                value:
+                  type_compte: "BANCAIRE"
+                  nom_titulaire: "Collectivité Riziculture Ambatondrazaka"
+                  banque: "BOA"
+                  numero_compte: "00005000010000000012345"
+                  solde_initial: 500000
+              mobile_money:
+                summary: Exemple — Orange Money
+                value:
+                  type_compte: "MOBILE_MONEY"
+                  nom_titulaire: "Rakoto Jean Pierre"
+                  service_mobile_money: "ORANGE_MONEY"
+                  numero_telephone: "+261341234567"
+                  solde_initial: 0
+      responses:
+        '201':
+          description: Compte créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Une caisse existe déjà pour cette collectivité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+    get:
+      tags: [D - Trésorerie]
+      summary: Consulter la situation de trésorerie d'une collectivité
+      description: Retourne tous les comptes (caisse + bancaires + mobile money) avec leurs soldes.
+      operationId: consulterTresorerieCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: type_compte
+          in: query
+          description: Filtrer par type de compte
+          schema:
+            $ref: '#/components/schemas/TypeCompte'
+      responses:
+        '200':
+          description: Situation complète de trésorerie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SituationTresorerieResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /collectivites/{collectivite_id}/comptes/{compte_id}:
+    get:
+      tags: [D - Trésorerie]
+      summary: Obtenir le détail d'un compte spécifique
+      operationId: obtenirCompteCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/CompteId'
+      responses:
+        '200':
+          description: Détail du compte avec son solde courant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    patch:
+      tags: [D - Trésorerie]
+      summary: Mettre à jour le solde d'un compte
+      description: Seul le trésorier en activité peut modifier le solde d'un compte.
+      operationId: mettreAJourSoldeCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/CompteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MiseAJourSoldeRequest'
+      responses:
+        '200':
+          description: Solde mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    delete:
+      tags: [D - Trésorerie]
+      summary: Supprimer un compte de trésorerie
+      description: >
+        Un compte avec un solde non nul ne peut pas être supprimé.
+        La caisse ne peut pas être supprimée tant que la collectivité est active.
+      operationId: supprimerCompteCollectivite
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/CompteId'
+      responses:
+        '204':
+          description: Compte supprimé avec succès
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Impossible de supprimer — solde non nul ou caisse active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+
+  /federation/comptes:
+    post:
+      tags: [D - Trésorerie Fédération]
+      summary: Ajouter un compte de trésorerie à la fédération
+      operationId: ajouterCompteFederation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompteRequest'
+      responses:
+        '201':
+          description: Compte créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: Une caisse existe déjà pour la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+    get:
+      tags: [D - Trésorerie Fédération]
+      summary: Consulter la situation de trésorerie de la fédération
+      operationId: consulterTresorerieFederation
+      responses:
+        '200':
+          description: Situation complète de trésorerie de la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SituationTresorerieResponse'
+
+  /federation/comptes/{compte_id}:
+    get:
+      tags: [D - Trésorerie Fédération]
+      summary: Obtenir le détail d'un compte de la fédération
+      operationId: obtenirCompteFederation
+      parameters:
+        - $ref: '#/components/parameters/CompteId'
+      responses:
+        '200':
+          description: Détail du compte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    patch:
+      tags: [D - Trésorerie Fédération]
+      summary: Mettre à jour le solde d'un compte de la fédération
+      operationId: mettreAJourSoldeFederation
+      parameters:
+        - $ref: '#/components/parameters/CompteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MiseAJourSoldeRequest'
+      responses:
+        '200':
+          description: Solde mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompteResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    delete:
+      tags: [D - Trésorerie Fédération]
+      summary: Supprimer un compte de la fédération
+      operationId: supprimerCompteFederation
+      parameters:
+        - $ref: '#/components/parameters/CompteId'
+      responses:
+        '204':
+          description: Compte supprimé avec succès
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Impossible de supprimer — solde non nul ou caisse active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+components:
+  parameters:
+    CollectiviteId:
+      name: collectivite_id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "COL-2026-0015"
+
+    CompteId:
+      name: compte_id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "CPT-2026-001"
+
+  schemas:
+    TypeCompte:
+      type: string
+      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
+
+    NomBanque:
+      type: string
+      enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+
+    ServiceMobileMoney:
+      type: string
+      enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
+
+    CompteRequest:
+      type: object
+      required: [type_compte]
+      properties:
+        type_compte:
+          $ref: '#/components/schemas/TypeCompte'
+        solde_initial:
+          type: integer
+          minimum: 0
+          default: 0
+        nom_titulaire:
+          type: string
+        banque:
+          $ref: '#/components/schemas/NomBanque'
+        numero_compte:
+          type: string
+          pattern: '^\d{23}$'
+        service_mobile_money:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numero_telephone:
+          type: string
+          pattern: '^\+261[0-9]{9}$'
+
+    CompteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "CPT-2026-001"
+        type_compte:
+          $ref: '#/components/schemas/TypeCompte'
+        solde:
+          type: integer
+        devise:
+          type: string
+          default: "MGA"
+        date_mise_a_jour:
+          type: string
+          format: date-time
+        nom_titulaire:
+          type: string
+        banque:
+          $ref: '#/components/schemas/NomBanque'
+        numero_compte:
+          type: string
+        service_mobile_money:
+          $ref: '#/components/schemas/ServiceMobileMoney'
+        numero_telephone:
+          type: string
+
+    MiseAJourSoldeRequest:
+      type: object
+      required: [solde, date_mise_a_jour]
+      properties:
+        solde:
+          type: integer
+          minimum: 0
+        date_mise_a_jour:
+          type: string
+          format: date
+
+    SituationTresorerieResponse:
+      type: object
+      properties:
+        caisse:
+          $ref: '#/components/schemas/CompteResponse'
+        comptes_bancaires:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompteResponse'
+        comptes_mobile_money:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompteResponse'
+        solde_total:
+          type: integer
+        devise:
+          type: string
+          default: "MGA"
+
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    Forbidden:
+      description: Action réservée au trésorier en activité
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
