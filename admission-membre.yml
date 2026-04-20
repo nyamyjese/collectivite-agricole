@@ -1,6 +1,6 @@
 openapi : 3.0.3
 info:
-  title: "B - Admission d'un nouveau membre dans une collectivité"
+  title: "Admission d'un nouveau membre dans une collectivité"
   description: >
     Fonctionnalité gérant l'admission, le changement de collectivité et la
     démission d'un membre. Conditions d'admission : être parrainé par un membre
@@ -206,3 +206,287 @@ paths:
                 $ref: '#/components/schemas/ResultatAnteriorite'
         '404':
           $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+
+    AdmissionMembreRequest:
+      type: object
+      required: [parrain_id, informations_personnelles, paiement]
+      properties:
+        parrain_id:
+          type: string
+          description: Identifiant du parrain (doit être membre confirmé avec > 90 jours d'ancienneté)
+          example: "MBR-005"
+        informations_personnelles:
+          $ref: '#/components/schemas/InformationsPersonnelles'
+        paiement:
+          $ref: '#/components/schemas/PaiementAdhesion'
+
+    InformationsPersonnelles:
+      type: object
+      required: [nom, prenoms, date_naissance, genre, adresse, metier, telephone, email]
+      properties:
+        nom:
+          type: string
+          example: "Rakoto"
+        prenoms:
+          type: string
+          example: "Jean Pierre"
+        date_naissance:
+          type: string
+          format: date
+          example: "1990-05-14"
+        genre:
+          type: string
+          enum: [MASCULIN, FEMININ]
+          example: "MASCULIN"
+        adresse:
+          type: string
+          example: "Lot II H 45, Antananarivo"
+        metier:
+          type: string
+          example: "Agriculteur"
+        telephone:
+          type: string
+          pattern: '^\+?[0-9]{9,15}$'
+          example: "+261341234567"
+        email:
+          type: string
+          format: email
+          example: "jean.rakoto@example.mg"
+
+    PaiementAdhesion:
+      type: object
+      required: [mode, reference_transaction, montant]
+      properties:
+        mode:
+          type: string
+          enum: [MOBILE_MONEY, VIREMENT_BANCAIRE]
+          example: "MOBILE_MONEY"
+        reference_transaction:
+          type: string
+          description: Référence de la transaction de paiement
+          example: "OM-2026-789456"
+        montant:
+          type: number
+          description: Doit être égal à 50 000 MGA
+          example: 50000
+          enum: [50000]
+
+    MiseAJourMembreRequest:
+      type: object
+      description: Tous les champs sont optionnels (PATCH)
+      properties:
+        adresse:
+          type: string
+        metier:
+          type: string
+        telephone:
+          type: string
+          pattern: '^\+?[0-9]{9,15}$'
+        email:
+          type: string
+          format: email
+
+    ChangementCollectiviteRequest:
+      type: object
+      required: [nouvelle_collectivite_id]
+      properties:
+        nouvelle_collectivite_id:
+          type: string
+          example: "COL-2026-0015"
+        motif:
+          type: string
+          maxLength: 300
+          example: "Déménagement à Fianarantsoa"
+
+    ChangementCollectiviteResponse:
+      type: object
+      properties:
+        membre_id:
+          type: string
+        ancienne_collectivite_id:
+          type: string
+        nouvelle_collectivite_id:
+          type: string
+        date_changement:
+          type: string
+          format: date-time
+        message:
+          type: string
+          example: "Changement de collectivité enregistré avec succès."
+
+    DemissionRequest:
+      type: object
+      properties:
+        motif:
+          type: string
+          maxLength: 300
+        date_effet:
+          type: string
+          format: date
+          description: Date effective de la démission (par défaut aujourd'hui)
+
+    DemissionResponse:
+      type: object
+      properties:
+        membre_id:
+          type: string
+        collectivite_id:
+          type: string
+        statut:
+          type: string
+          example: "DEMISSIONNE"
+        date_demission:
+          type: string
+          format: date-time
+
+    MembreResponse:
+      type: object
+      properties:
+        membre_id:
+          type: string
+          example: "MBR-042"
+        informations_personnelles:
+          $ref: '#/components/schemas/InformationsPersonnelles'
+        poste:
+          $ref: '#/components/schemas/PosteSpecifique'
+        statut:
+          $ref: '#/components/schemas/StatutMembre'
+        collectivite_id:
+          type: string
+          example: "COL-2026-0042"
+        date_adhesion:
+          type: string
+          format: date
+        parrain_id:
+          type: string
+          example: "MBR-005"
+
+    PageMembres:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembreResponse'
+
+    ResultatAnteriorite:
+      type: object
+      properties:
+        membre_id:
+          type: string
+        date_adhesion:
+          type: string
+          format: date
+        jours_anciennete:
+          type: integer
+          example: 120
+        poste:
+          $ref: '#/components/schemas/PosteSpecifique'
+        condition_parrain_satisfaite:
+          type: boolean
+          description: true si le membre est confirmé ET a > 90 jours d'ancienneté
+
+    ErreurAdmission:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "ADMISSION_ERROR"
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+          example:
+            - "Le parrain MBR-005 n'est pas un membre confirmé"
+            - "Le parrain n'a que 60 jours d'ancienneté (90 requis)"
+            - "Le montant de paiement est invalide (50 000 MGA requis)"
+
+    PosteSpecifique:
+      type: string
+      enum:
+        - PRESIDENT
+        - PRESIDENT_ADJOINT
+        - TRESORIER
+        - SECRETAIRE
+        - MEMBRE_CONFIRME
+        - MEMBRE_JUNIOR
+
+    StatutMembre:
+      type: string
+      enum:
+        - ACTIF
+        - DEMISSIONNE
+        - SUSPENDU
+
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  parameters:
+    CollectiviteId:
+      name: collectivite_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "COL-2026-0042"
+
+    MembreId:
+      name: membre_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "MBR-042"
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
