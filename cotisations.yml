@@ -1,0 +1,394 @@
+openapi: 3.0.3
+info:
+  title: "C - Cotisations et paiements"
+  description: >
+    Fonctionnalité gérant les cotisations périodiques (mensuelles ou annuelles)
+    et ponctuelles versées par les membres. Le trésorier en activité enregistre
+    chaque encaissement (montant, date, mode de paiement). Un pourcentage des
+    cotisations périodiques est automatiquement reversé à la fédération.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080
+
+paths:
+
+  /collectivites/{collectivite_id}/cotisations:
+    post:
+      tags: [C - Cotisations]
+      summary: Enregistrer un encaissement de cotisation
+      description: >
+        Seul le trésorier en activité peut enregistrer un encaissement.
+        Si le type est PERIODIQUE_MENSUELLE ou PERIODIQUE_ANNUELLE, le système
+        calcule automatiquement le montant à reverser à la fédération selon
+        le pourcentage configuré.
+      operationId: enregistrerCotisation
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncaissementCotisationRequest'
+            example:
+              membre_id: "MBR-005"
+              type: "PERIODIQUE_MENSUELLE"
+              montant: 25000
+              mode_paiement: "MOBILE_MONEY"
+              reference_transaction: "OM-2026-112233"
+              date_encaissement: "2026-04-20"
+      responses:
+        '201':
+          description: Cotisation enregistrée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags: [C - Cotisations]
+      summary: Lister les cotisations d'une collectivité
+      operationId: listerCotisations
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          description: Filtrer par type de cotisation
+          schema:
+            $ref: '#/components/schemas/TypeCotisation'
+        - name: membre_id
+          in: query
+          description: Filtrer par membre
+          schema:
+            type: string
+        - name: date_debut
+          in: query
+          description: Date de début de la période (incluse)
+          schema:
+            type: string
+            format: date
+        - name: date_fin
+          in: query
+          description: Date de fin de la période (incluse)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Liste paginée des cotisations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCotisations'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/cotisations/{cotisation_id}:
+    get:
+      tags: [C - Cotisations]
+      summary: Obtenir le détail d'une cotisation
+      operationId: obtenirCotisation
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/CotisationId'
+      responses:
+        '200':
+          description: Détail complet de la cotisation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CotisationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/cotisations/reversements:
+    get:
+      tags: [C - Cotisations]
+      summary: Consulter les reversements à la fédération
+      description: >
+        Retourne le détail et le total des montants reversés à la fédération
+        sur une période donnée (cotisations périodiques uniquement).
+      operationId: consulterReversements
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: date_debut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: date_fin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Détail des reversements à la fédération
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReversementsFederationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /membres/{membre_id}/cotisations:
+    get:
+      tags: [C - Cotisations]
+      summary: Lister les cotisations d'un membre
+      description: >
+        Retourne toutes les cotisations versées par un membre donné,
+        toutes collectivités confondues. Utilisé notamment pour le calcul
+        des montants encaissés et impayés (fonctionnalité G).
+      operationId: listerCotisationsMembre
+      parameters:
+        - $ref: '#/components/parameters/MembreId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: date_debut
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_fin
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Liste paginée des cotisations du membre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCotisations'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    CollectiviteId:
+      name: collectivite_id
+      in: path
+      required: true
+      description: Identifiant unique de la collectivité
+      schema:
+        type: string
+        example: "COL-2026-0015"
+
+    MembreId:
+      name: membre_id
+      in: path
+      required: true
+      description: Identifiant unique du membre
+      schema:
+        type: string
+        example: "MBR-005"
+
+    CotisationId:
+      name: cotisation_id
+      in: path
+      required: true
+      description: Identifiant unique de la cotisation
+      schema:
+        type: string
+        example: "COT-2026-001"
+
+    PageParam:
+      name: page
+      in: query
+      description: Numéro de page (commence à 0)
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Nombre d'éléments par page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  schemas:
+    TypeCotisation:
+      type: string
+      enum: [PERIODIQUE_MENSUELLE, PERIODIQUE_ANNUELLE, PONCTUELLE]
+      description: >
+        - PERIODIQUE_MENSUELLE : versement mensuel régulier (un % va à la fédération)
+        - PERIODIQUE_ANNUELLE : versement annuel régulier (un % va à la fédération)
+        - PONCTUELLE : versement lié à un événement spécifique (rien reversé)
+
+    ModePaiement:
+      type: string
+      enum: [ESPECE, VIREMENT_BANCAIRE, MOBILE_MONEY]
+      description: >
+        Mode de paiement de la cotisation.
+        ESPECE uniquement pour les cotisations ponctuelles.
+
+    EncaissementCotisationRequest:
+      type: object
+      required: [membre_id, type, montant, mode_paiement, date_encaissement]
+      properties:
+        membre_id:
+          type: string
+          description: Identifiant du membre qui cotise
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: integer
+          description: Montant en Ariary (MGA)
+          minimum: 1
+          example: 25000
+        mode_paiement:
+          $ref: '#/components/schemas/ModePaiement'
+        reference_transaction:
+          type: string
+          description: Référence de transaction — obligatoire pour VIREMENT_BANCAIRE et MOBILE_MONEY
+          example: "OM-2026-112233"
+        date_encaissement:
+          type: string
+          format: date
+          description: Date effective de l'encaissement
+
+    CotisationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "COT-2026-001"
+        membre_id:
+          type: string
+        collectivite_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TypeCotisation'
+        montant:
+          type: integer
+          description: Montant versé en MGA
+        mode_paiement:
+          $ref: '#/components/schemas/ModePaiement'
+        reference_transaction:
+          type: string
+        date_encaissement:
+          type: string
+          format: date
+        montant_reverse_federation:
+          type: integer
+          description: Montant reversé à la fédération en MGA (0 si PONCTUELLE)
+        statut:
+          type: string
+          enum: [ENREGISTRE, REVERSE_FEDERATION]
+
+    PageCotisations:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CotisationResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ReversementsFederationResponse:
+      type: object
+      properties:
+        collectivite_id:
+          type: string
+        date_debut:
+          type: string
+          format: date
+        date_fin:
+          type: string
+          format: date
+        total_cotisations_periodiques:
+          type: integer
+          description: Total des cotisations périodiques collectées en MGA
+        pourcentage_reversement:
+          type: number
+          format: float
+          description: Pourcentage configuré pour le reversement vers la fédération
+        total_reverse_federation:
+          type: integer
+          description: Montant total reversé à la fédération en MGA
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              cotisation_id:
+                type: string
+              date_encaissement:
+                type: string
+                format: date
+              montant_cotisation:
+                type: integer
+              montant_reverse:
+                type: integer
+
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+
+  responses:
+    BadRequest:
+      description: Requête invalide — données manquantes ou format incorrect
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            code: "VALIDATION_ERROR"
+            message: "Données invalides"
+            details:
+              - "Le montant doit être supérieur à 0"
+              - "La référence de transaction est obligatoire pour MOBILE_MONEY"
+
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            code: "NOT_FOUND"
+            message: "Ressource introuvable"
+
+    Forbidden:
+      description: Action non autorisée — réservée au trésorier en activité
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            code: "FORBIDDEN"
+            message: "Seul le trésorier en activité peut enregistrer une cotisation"
