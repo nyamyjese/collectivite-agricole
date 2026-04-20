@@ -1,0 +1,261 @@
+openapi: 3.0.3
+info:
+  title: "Statistiques d'une collectivité"
+  description: >
+    Fonctionnalité gérant les statistiques d'une collectivité.
+    Le président doit soumettre un rapport mensuel à la fédération comprenant
+    le taux d'assiduité global et le nombre de membres inscrits.
+    En interne, le président dispose de statistiques détaillées par membre actif
+    (non démissionnaire) : taux d'assiduité, montant d'encaissement et
+    montant impayé potentiel sur une période donnée.
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080
+
+paths:
+
+  /collectivites/{collectivite_id}/statistiques/rapport-mensuel:
+    post:
+      tags: [Statistiques]
+      summary: Soumettre le rapport mensuel à la fédération
+      operationId: soumettreRapportMensuel
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RapportMensuelRequest'
+            example:
+              periode: "2026-03"
+              president_id: "MBR-001"
+              taux_assiduite_global: 78.5
+              nombre_membres_inscrits: 42
+              commentaire: "Légère baisse de l'assiduité due aux récoltes en cours."
+      responses:
+        '201':
+          description: Rapport mensuel soumis avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportMensuelResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: Action réservée au président
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Un rapport a déjà été soumis pour cette période
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+    get:
+      tags: [ Statistiques ]
+      summary: Lister les rapports mensuels soumis à la fédération
+      operationId: listerRapportsMensuels
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: annee
+          in: query
+          schema:
+            type: integer
+          example: 2026
+      responses:
+        '200':
+          description: Liste des rapports mensuels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageRapportsMensuels'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/statistiques/rapport-mensuel/{periode}:
+    get:
+      tags: [ Statistiques ]
+      summary: Consulter le rapport mensuel d'une période
+      operationId: consulterRapportMensuel
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: periode
+          in: path
+          required: true
+          description: Période au format YYYY-MM
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2026-03"
+      responses:
+        '200':
+          description: Rapport mensuel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RapportMensuelResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/statistiques/membres:
+    get:
+      tags: [ Statistiques ]
+      summary: Statistiques détaillées par membre actif
+      operationId: statistiquesParMembre
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: date_debut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: date_fin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-03-31"
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: tri
+          in: query
+          description: Trier les résultats par critère
+          schema:
+            type: string
+            enum:
+              - taux_assiduite_asc
+              - taux_assiduite_desc
+              - montant_encaisse_asc
+              - montant_encaisse_desc
+              - montant_impaye_desc
+      responses:
+        '200':
+          description: Statistiques détaillées par membre actif
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageStatsMembres'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: Accès réservé au président de la collectivité
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/statistiques/membres/{membre_id}:
+    get:
+      tags: [ Statistiques ]
+      summary: Statistiques détaillées d'un membre actif spécifique
+      operationId: statistiquesMembre
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - $ref: '#/components/parameters/MembreId'
+        - name: date_debut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: date_fin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-03-31"
+      responses:
+        '200':
+          description: Statistiques du membre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsMembre'
+        '403':
+          description: Accès réservé au président
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivites/{collectivite_id}/statistiques/resume:
+    get:
+      tags: [ Statistiques ]
+      summary: Résumé statistique global de la collectivité
+      operationId: resumeStatistiques
+      parameters:
+        - $ref: '#/components/parameters/CollectiviteId'
+        - name: date_debut
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: date_fin
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-03-31"
+      responses:
+        '200':
+          description: Résumé statistique
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumeStatistiques'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /federation/rapports-mensuels:
+    get:
+      tags: [ Statistiques ]
+      summary: Consulter les rapports mensuels de toutes les collectivités
+      operationId: rapportsMensuelsFederation
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: collectivite_id
+          in: query
+          schema:
+            type: string
+        - name: periode
+          in: query
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          example: "2026-03"
+        - name: statut
+          in: query
+          schema:
+            type: string
+            enum: [ SOUMIS, NON_SOUMIS ]
+      responses:
+        '200':
+          description: Liste des rapports mensuels de toutes les collectivités
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageRapportsMensuelsFederation'
+        '403':
+          $ref: '#/components/responses/Forbidden'
