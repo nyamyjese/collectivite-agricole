@@ -7,7 +7,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8080/api
+  - url: https://localhost:8080
 
 paths:
   /collectivites/{collectivite_id}/activites:
@@ -57,7 +57,7 @@ paths:
                 $ref: '#/components/schemas/PageActivites'
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ... (le reste des paths reste identique)
+
 
 components:
   parameters:
@@ -133,7 +133,7 @@ components:
         description:
           type: string
 
-    # (le reste des schémas reste inchangé)
+
 
     Erreur:
       type: object
