@@ -259,3 +259,281 @@ paths:
                 $ref: '#/components/schemas/PageRapportsMensuelsFederation'
         '403':
           $ref: '#/components/responses/Forbidden'
+
+components:
+  schemas:
+
+    RapportMensuelRequest:
+      type: object
+      required: [periode, president_id, taux_assiduite_global, nombre_membres_inscrits]
+      properties:
+        periode:
+          type: string
+          description: Mois du rapport au format YYYY-MM
+          pattern: '^\d{4}-\d{2}$'
+          example: "2026-03"
+        president_id:
+          type: string
+          description: Identifiant du président soumettant le rapport
+          example: "MBR-001"
+        taux_assiduite_global:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Taux d'assiduité global de la collectivité (en %)
+          example: 78.5
+        nombre_membres_inscrits:
+          type: integer
+          minimum: 0
+          description: Nombre total de membres inscrits au moment du rapport
+          example: 42
+        commentaire:
+          type: string
+          maxLength: 1000
+          example: "Légère baisse de l'assiduité due aux récoltes en cours."
+
+    RapportMensuelResponse:
+      type: object
+      properties:
+        rapport_id:
+          type: string
+          example: "RPT-COL-2026-0042-2026-03"
+        collectivite_id:
+          type: string
+        periode:
+          type: string
+          example: "2026-03"
+        president_id:
+          type: string
+        taux_assiduite_global:
+          type: number
+          format: float
+          example: 78.5
+        nombre_membres_inscrits:
+          type: integer
+          example: 42
+        commentaire:
+          type: string
+        date_soumission:
+          type: string
+          format: date-time
+
+    PageRapportsMensuels:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RapportMensuelResponse'
+
+    PageRapportsMensuelsFederation:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        collectivites_ayant_soumis:
+          type: integer
+        collectivites_n_ayant_pas_soumis:
+          type: integer
+        data:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/RapportMensuelResponse'
+              - type: object
+                properties:
+                  nom_collectivite:
+                    type: string
+                  localite:
+                    type: string
+
+    StatsMembre:
+      type: object
+      properties:
+        membre_id:
+          type: string
+          example: "MBR-042"
+        nom_complet:
+          type: string
+          example: "Rakoto Jean Pierre"
+        poste:
+          type: string
+          example: "MEMBRE_CONFIRME"
+        statut:
+          type: string
+          example: "ACTIF"
+        periode_debut:
+          type: string
+          format: date
+        periode_fin:
+          type: string
+          format: date
+        taux_assiduite:
+          type: number
+          format: float
+          description: Taux d'assiduité sur la période (en %)
+          example: 83.33
+        montant_encaisse:
+          type: number
+          description: Montant total des cotisations encaissées sur la période (MGA)
+          example: 30000
+        montant_impaye_potentiel:
+          type: number
+          description: >
+            Montant estimé des cotisations attendues mais non versées sur la période (MGA).
+            Calculé sur la base des cotisations périodiques attendues moins celles encaissées.
+          example: 10000
+        detail_assiduite:
+          type: object
+          properties:
+            total_activites:
+              type: integer
+            presents:
+              type: integer
+            excuses:
+              type: integer
+            absents:
+              type: integer
+        detail_cotisations:
+          type: array
+          description: Détail des cotisations encaissées sur la période
+          items:
+            type: object
+            properties:
+              cotisation_id:
+                type: string
+              date_encaissement:
+                type: string
+                format: date
+              montant:
+                type: number
+              type_cotisation:
+                type: string
+
+    PageStatsMembres:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        periode_debut:
+          type: string
+          format: date
+        periode_fin:
+          type: string
+          format: date
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatsMembre'
+
+    ResumeStatistiques:
+      type: object
+      properties:
+        collectivite_id:
+          type: string
+        periode_debut:
+          type: string
+          format: date
+        periode_fin:
+          type: string
+          format: date
+        nombre_membres_actifs:
+          type: integer
+          description: Membres non démissionnaires
+          example: 38
+        taux_assiduite_global:
+          type: number
+          format: float
+          description: Taux moyen d'assiduité de tous les membres actifs (%)
+          example: 78.5
+        total_encaisse:
+          type: number
+          description: Total des cotisations encaissées sur la période (MGA)
+          example: 380000
+        total_impaye_potentiel:
+          type: number
+          description: Total des montants impayés potentiels sur la période (MGA)
+          example: 40000
+
+    Erreur:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+  parameters:
+    CollectiviteId:
+      name: collectivite_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "COL-2026-0042"
+
+    MembreId:
+      name: membre_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "MBR-042"
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+    Forbidden:
+      description: Accès non autorisé
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
