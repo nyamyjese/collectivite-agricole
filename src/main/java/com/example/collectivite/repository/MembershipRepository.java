@@ -99,7 +99,7 @@ public class MembershipRepository {
 
     public int countActiveByCollectivity(Integer collectivityId) {
         String sql = """
-            SELECT COUNT(id) FROM membership
+            SELECT COUNT(1) FROM membership
             WHERE collectivity_id = ? AND end_date IS NULL
             """;
 
@@ -118,7 +118,7 @@ public class MembershipRepository {
 
     public boolean isPositionOccupied(Integer collectivityId, Poste poste) {
         String sql = """
-            SELECT COUNT(id) FROM federation.appartenance
+            SELECT COUNT(1) FROM federation.appartenance
             WHERE collectivity_id = ? AND poste = ?::poste
               AND end_date IS NULL
             """;

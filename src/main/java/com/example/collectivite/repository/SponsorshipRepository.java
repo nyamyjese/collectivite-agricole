@@ -75,7 +75,7 @@ public class SponsorshipRepository {
     public int countSponsorsInTargetCollectivity(Integer candidateId,
                                                  Integer targetCollectivityId) {
         String sql = """
-            SELECT COUNT(*) FROM sponsorship
+            SELECT COUNT(1) FROM sponsorship
             WHERE candidate_id = ?
               AND target_community_id = ?
               AND sponsor_community_id = ?
