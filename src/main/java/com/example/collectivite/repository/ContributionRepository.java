@@ -229,19 +229,7 @@ public class ContributionRepository {
         return 0;
     }
 
-    /**
-     * Récupère les contributions d'un membre donné, avec filtres optionnels sur les dates,
-     * triées par date de collecte décroissante et paginées.
-     *
-     * @param conn      connexion JDBC active (gérée par l'appelant)
-     * @param memberId  identifiant du membre (obligatoire)
-     * @param startDate date de début (peut être null)
-     * @param endDate   date de fin (peut être null)
-     * @param offset    nombre d'éléments à ignorer (pour pagination)
-     * @param limit     nombre maximum d'éléments à retourner
-     * @return liste des contributions correspondantes
-     * @throws SQLException en cas d'erreur SQL
-     */
+
     public List<Contribution> findByMemberId(Connection conn, String memberId,
                                              LocalDate startDate, LocalDate endDate,
                                              int offset, int limit) throws SQLException {

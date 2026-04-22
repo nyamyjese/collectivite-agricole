@@ -7,6 +7,7 @@ import com.example.collectivite.dto.ReversementResponse;
 import com.example.collectivite.entity.Contribution;
 import com.example.collectivite.exception.BadRequestException;
 import com.example.collectivite.repository.ContributionRepository;
+import com.example.collectivite.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;

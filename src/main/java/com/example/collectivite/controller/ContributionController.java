@@ -19,10 +19,8 @@ public class ContributionController {
         this.contributionService = contributionService;
     }
 
-    /**
-     * POST /collectivities/{collectivityId}/contributions
-     * Enregistre une nouvelle cotisation.
-     */
+
+     // POST /collectivities/{collectivityId}/contributions
     @PostMapping("/collectivities/{collectivityId}/contributions")
     public ResponseEntity<ContributionResponse> recordContribution(
             @PathVariable String collectivityId,
@@ -31,10 +29,8 @@ public class ContributionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * GET /collectivities/{collectivityId}/contributions
-     * Liste les cotisations d'une collectivité avec filtres optionnels et pagination.
-     */
+
+     // GET /collectivities/{collectivityId}/contributions
     @GetMapping("/collectivities/{collectivityId}/contributions")
     public ResponseEntity<PageResponse<ContributionResponse>> listContributions(
             @PathVariable String collectivityId,
@@ -52,10 +48,8 @@ public class ContributionController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * GET /collectivities/{collectivityId}/contributions/{contributionId}
-     * Récupère une cotisation spécifique.
-     */
+
+     // GET /collectivities/{collectivityId}/contributions/{contributionId}
     @GetMapping("/collectivities/{collectivityId}/contributions/{contributionId}")
     public ResponseEntity<ContributionResponse> getContribution(
             @PathVariable String collectivityId,
@@ -64,10 +58,8 @@ public class ContributionController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * GET /collectivities/{collectivityId}/contributions/reversements
-     * Calcule les reversements à la fédération sur une période.
-     */
+
+     // GET /collectivities/{collectivityId}/contributions/reversements
     @GetMapping("/collectivities/{collectivityId}/contributions/reversements")
     public ResponseEntity<ReversementResponse> getReversements(
             @PathVariable String collectivityId,
@@ -77,10 +69,8 @@ public class ContributionController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * GET /members/{memberId}/contributions
-     * Liste les cotisations d'un membre spécifique.
-     */
+
+     // GET /members/{memberId}/contributions
     @GetMapping("/members/{memberId}/contributions")
     public ResponseEntity<PageResponse<ContributionResponse>> listMemberContributions(
             @PathVariable String memberId,
