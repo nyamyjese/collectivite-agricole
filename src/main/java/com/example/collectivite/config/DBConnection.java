@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBConnection {
-    public Connection getConnection() {
+    public static Connection getConnection() {
         try {
             String JDBC_URL = System.getenv("JDBC_URL");
             String user = System.getenv("user");

@@ -1,13 +1,13 @@
 package com.example.collectivite.exception;
 
-public class BadReqestException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
     private final String field;
-    public BadReqestException(String message) {
+    public BadRequestException(String message) {
         super(message);
         this.field = null;
     }
 
-    public BadReqestException(String field, String message) {
+    public BadRequestException(String field, String message) {
         super(message);
         this.field = field;
     }
