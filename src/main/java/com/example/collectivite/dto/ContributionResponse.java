@@ -1,9 +1,11 @@
 package com.example.collectivite.dto;
 
 import com.example.collectivite.entity.Contribution;
+
 import java.time.LocalDate;
 
 public class ContributionResponse {
+
     private String id;
     private String memberId;
     private String collectivityId;
@@ -15,10 +17,8 @@ public class ContributionResponse {
     private int federationReversedAmount;
     private String status;
 
-    // Constructeur par défaut
     public ContributionResponse() {}
 
-    // Méthode statique pour convertir une entité en DTO
     public static ContributionResponse fromEntity(Contribution contribution) {
         ContributionResponse response = new ContributionResponse();
         response.setId(contribution.getId());
@@ -34,83 +34,33 @@ public class ContributionResponse {
         return response;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getMemberId() { return memberId; }
+    public void setMemberId(String memberId) { this.memberId = memberId; }
 
-    public String getMemberId() {
-        return memberId;
-    }
+    public String getCollectivityId() { return collectivityId; }
+    public void setCollectivityId(String collectivityId) { this.collectivityId = collectivityId; }
 
-    public void setMemberId(String memberId) {
-        this.memberId = memberId;
-    }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
-    public String getCollectivityId() {
-        return collectivityId;
-    }
+    public int getAmount() { return amount; }
+    public void setAmount(int amount) { this.amount = amount; }
 
-    public void setCollectivityId(String collectivityId) {
-        this.collectivityId = collectivityId;
-    }
+    public String getPaymentMode() { return paymentMode; }
+    public void setPaymentMode(String paymentMode) { this.paymentMode = paymentMode; }
 
-    public String getType() {
-        return type;
-    }
+    public String getTransactionReference() { return transactionReference; }
+    public void setTransactionReference(String transactionReference) { this.transactionReference = transactionReference; }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    public LocalDate getCollectionDate() { return collectionDate; }
+    public void setCollectionDate(LocalDate collectionDate) { this.collectionDate = collectionDate; }
 
-    public int getAmount() {
-        return amount;
-    }
+    public int getFederationReversedAmount() { return federationReversedAmount; }
+    public void setFederationReversedAmount(int federationReversedAmount) { this.federationReversedAmount = federationReversedAmount; }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
-    public String getPaymentMode() {
-        return paymentMode;
-    }
-
-    public void setPaymentMode(String paymentMode) {
-        this.paymentMode = paymentMode;
-    }
-
-    public String getTransactionReference() {
-        return transactionReference;
-    }
-
-    public void setTransactionReference(String transactionReference) {
-        this.transactionReference = transactionReference;
-    }
-
-    public LocalDate getCollectionDate() {
-        return collectionDate;
-    }
-
-    public void setCollectionDate(LocalDate collectionDate) {
-        this.collectionDate = collectionDate;
-    }
-
-    public int getFederationReversedAmount() {
-        return federationReversedAmount;
-    }
-
-    public void setFederationReversedAmount(int federationReversedAmount) {
-        this.federationReversedAmount = federationReversedAmount;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
