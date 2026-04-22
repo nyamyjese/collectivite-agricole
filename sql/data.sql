@@ -75,7 +75,7 @@ INSERT INTO contribution (id, member_id, collectivity_id, type, amount, payment_
 -- Cotisations pour col-005 (Sambava)
 ('cont-401', 'mbr-401', 'col-005', 'PERIODIQUE_MENSUELLE', 30000, 'MOBILE_MONEY', 'OM-2026-401', '2026-04-10', 3000, 'ENREGISTRE'),
 ('cont-402', 'mbr-402', 'col-005', 'PERIODIQUE_MENSUELLE', 30000, 'MOBILE_MONEY', 'OM-2026-402', '2026-04-11', 3000, 'ENREGISTRE'),
-('cont-403', 'mbr-405', 'col-005', 'PONCTUELLE', 50000, 'ESPECE', NULL, '2026-03-15', 0, 'ENREGISTRE'),   -- ponctuelle : 0 reversé
+('cont-403', 'mbr-405', 'col-005', 'PONCTUELLE', 50000, 'ESPECE', NULL, '2026-03-15', 0, 'ENREGISTRE'),
 ('cont-404', 'mbr-406', 'col-005', 'PERIODIQUE_MENSUELLE', 30000, 'MOBILE_MONEY', 'OM-2026-403', '2026-04-12', 3000, 'ENREGISTRE');
 
 
