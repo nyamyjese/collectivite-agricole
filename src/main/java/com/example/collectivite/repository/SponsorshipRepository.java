@@ -1,6 +1,6 @@
 package com.example.collectivite.repository;
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.model.Sponsorship;
+import com.example.collectivite.entity.Sponsorship;
 
 import java.sql.*;
 import java.util.ArrayList;

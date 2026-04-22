@@ -1,6 +1,6 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.model.Poste;
+import com.example.collectivite.entity.Poste;
 
 public class MemberRequest {
     private Integer memberId;

@@ -1,8 +1,8 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.model.Membership;
-import com.example.collectivite.model.Poste;
+import com.example.collectivite.entity.Membership;
+import com.example.collectivite.entity.Poste;
 
 import java.sql.*;
 import java.util.ArrayList;

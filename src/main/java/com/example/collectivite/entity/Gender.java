@@ -1,4 +1,4 @@
-package com.example.collectivite.model;
+package com.example.collectivite.entity;
 
 public enum Gender {
     MALE , FEMALE

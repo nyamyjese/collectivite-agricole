@@ -1,8 +1,7 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.model.MemberStatus;
-import com.example.collectivite.model.Poste;
-import org.springframework.cglib.core.Local;
+import com.example.collectivite.entity.MemberStatus;
+import com.example.collectivite.entity.Poste;
 
 import java.time.LocalDate;
 
