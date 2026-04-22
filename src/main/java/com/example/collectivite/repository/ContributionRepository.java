@@ -196,4 +196,90 @@ public class ContributionRepository {
         c.setStatus(rs.getString("status"));
         return c;
     }
+
+    public int countByMemberId(Connection conn, String memberId, LocalDate startDate, LocalDate endDate) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM contribution WHERE member_id = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(memberId);
+
+        if (startDate != null) {
+            sql.append(" AND collection_date >= ?");
+            params.add(Date.valueOf(startDate));
+        }
+        if (endDate != null) {
+            sql.append(" AND collection_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof Date) {
+                    stmt.setDate(i + 1, (Date) param);
+                } else {
+                    stmt.setString(i + 1, (String) param);
+                }
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Récupère les contributions d'un membre donné, avec filtres optionnels sur les dates,
+     * triées par date de collecte décroissante et paginées.
+     *
+     * @param conn      connexion JDBC active (gérée par l'appelant)
+     * @param memberId  identifiant du membre (obligatoire)
+     * @param startDate date de début (peut être null)
+     * @param endDate   date de fin (peut être null)
+     * @param offset    nombre d'éléments à ignorer (pour pagination)
+     * @param limit     nombre maximum d'éléments à retourner
+     * @return liste des contributions correspondantes
+     * @throws SQLException en cas d'erreur SQL
+     */
+    public List<Contribution> findByMemberId(Connection conn, String memberId,
+                                             LocalDate startDate, LocalDate endDate,
+                                             int offset, int limit) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM contribution WHERE member_id = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(memberId);
+
+        if (startDate != null) {
+            sql.append(" AND collection_date >= ?");
+            params.add(Date.valueOf(startDate));
+        }
+        if (endDate != null) {
+            sql.append(" AND collection_date <= ?");
+            params.add(Date.valueOf(endDate));
+        }
+        sql.append(" ORDER BY collection_date DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        List<Contribution> contributions = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof Date) {
+                    stmt.setDate(i + 1, (Date) param);
+                } else if (param instanceof Integer) {
+                    stmt.setInt(i + 1, (Integer) param);
+                } else {
+                    stmt.setString(i + 1, (String) param);
+                }
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    contributions.add(mapRowToContribution(rs));
+                }
+            }
+        }
+        return contributions;
+    }
 }

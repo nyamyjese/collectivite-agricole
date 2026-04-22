@@ -147,4 +147,44 @@ public class ContributionService {
             throw new BadRequestException("INVALID_PAYMENT_MODE", "Payment mode must be ESPECE, VIREMENT_BANCAIRE or MOBILE_MONEY");
         }
     }
+
+    public ContributionResponse getContribution(String collectivityId, String contributionId) {
+        Contribution contribution = contributionRepository.findById(contributionId);
+        if (contribution == null || !contribution.getCollectivityId().equals(collectivityId)) {
+            throw new ResourceNotFoundException("Contribution not found");
+        }
+        return ContributionResponse.fromEntity(contribution);
+    }
+
+    public int countContributions(String collectivityId, String type, String memberId,
+                                  LocalDate startDate, LocalDate endDate) {
+        try (Connection conn = DBConnection.getConnection()) {
+            return contributionRepository.countByCollectivityId(conn, collectivityId, type, memberId, startDate, endDate);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors du comptage des contributions", e);
+        }
+    }
+
+    public List<ContributionResponse> listMemberContributions(String memberId, LocalDate startDate, LocalDate endDate,
+                                                              int page, int limit) {
+        try (Connection conn = DBConnection.getConnection()) {
+            int offset = page * limit;
+            List<Contribution> contributions = contributionRepository.findByMemberId(conn, memberId, startDate, endDate, offset, limit);
+            List<ContributionResponse> responses = new ArrayList<>();
+            for (Contribution c : contributions) {
+                responses.add(ContributionResponse.fromEntity(c));
+            }
+            return responses;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la liste des contributions du membre", e);
+        }
+    }
+
+    public int countMemberContributions(String memberId, LocalDate startDate, LocalDate endDate) {
+        try (Connection conn = DBConnection.getConnection()) {
+            return contributionRepository.countByMemberId(conn, memberId, startDate, endDate);
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors du comptage des contributions du membre", e);
+        }
+    }
 }
