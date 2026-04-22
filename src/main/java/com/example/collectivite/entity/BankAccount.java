@@ -13,7 +13,7 @@ public class BankAccount extends Account {
     }
 
     public BankAccount(Integer id ,
-                       Integer collecitivityId ,
+                       Integer collectivityId ,
                        boolean isFederation ,
                        String titular,
                        BigDecimal balance,
@@ -21,7 +21,7 @@ public class BankAccount extends Account {
                        LocalDate creationDate ,
                        Bank bank ,
                        String accountNumber) {
-        super(id, collecitivityId , isFederation ,
+        super(id, collectivityId , isFederation ,
                 AccountType.BANK, titular, balance, currency, creationDate);
         this.bank = bank;
         this.accountNumber = accountNumber;
