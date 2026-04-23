@@ -1,32 +1,40 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
-  title: API de la Fédération des Collectivités Agricoles
+  title: Agricultural Federation API
   description: |
-    # Gestion des versions
-    Cette API utilise le versionnement sémantique (MAJEUR.MINEUR.CORRECTIF).
-    - v0.0.1 (21 avril 2026) : Création de collectivités (`POST /collectivities`) et de membres (`POST /members`).
-    - v0.0.2 (22 avril 2026) : Attribution d'un numéro et d'un nom officiels par la fédération (`PATCH /collectivities/{collectivityId}/identifiers`).
-  version: 0.0.2
-servers:
-  - url: 'https://localhost:8080'
-    description: Serveur local de développement
+    API REST de gestion de la fédération nationale de collectivités agricoles à Madagascar.
 
+    ## Gestion des versions
+    - **v0.0.1** (21/04/2026) : Création de collectivités (`POST /collectivities`) et admission de membres (`POST /members`).
+    - **v0.0.2** (22/04/2026) : Attribution d'un numéro et d'un nom officiels (`PUT /collectivities/{id}/informations`).
+    - **v0.0.3** (22/04/2026) : Cotisations et transactions (`POST /collectivities/{id}/membershipFees`, `GET /collectivities/{id}/membershipFees`, `GET /collectivities/{id}/transactions`, `POST /members/{id}/payments`).
+    - **v0.0.4** (23/04/2026) : Détail d'une collectivité (`GET /collectivities/{id}`) et consultation des comptes financiers (`GET /collectivities/{id}/financialAccounts`).
+  version: 0.0.4
+servers:
+  - url: http://localhost:8080
+    description: Serveur local de développement
+  - url: https://api.federation-agricole.mg
+    description: Serveur de production
 tags:
   - name: Collectivités
     description: Gestion des collectivités agricoles
   - name: Membres
-    description: Gestion des membres
-  - name: Identifiants officiels
-    description: Attribution du numéro et du nom officiels (réservé à la fédération)
+    description: Gestion des membres et de leurs paiements
+  - name: Cotisations
+    description: Gestion des cotisations (membership fees)
+  - name: Transactions
+    description: Historique des transactions financières
+  - name: Comptes Financiers
+    description: Consultation des comptes bancaires, mobile money et caisses
 
 paths:
-  '/collectivities':
+
+  /collectivities:
     post:
-      tags:
-        - Collectivités
+      tags: [Collectivités]
       summary: Créer une ou plusieurs collectivités
       description: |
-        Soumet une demande de création de collectivité(s). 
+        Soumet une demande de création de collectivité(s).
         Seuls les identifiants des membres sont fournis. La réponse inclut les informations complètes des membres.
       requestBody:
         required: true
@@ -37,73 +45,253 @@ paths:
               items:
                 $ref: '#/components/schemas/CreateCollectivity'
             examples:
-              creationUneCollectivite:
+              creationCollectivite:
                 summary: Exemple de création d'une collectivité
                 value:
                   - location: Ambatondrazaka
                     members:
-                      - "MBR-001"
-                      - "MBR-002"
-                      - "MBR-003"
-                      - "MBR-004"
-                      - "MBR-005"
-                      - "MBR-006"
-                      - "MBR-007"
-                      - "MBR-008"
-                      - "MBR-009"
-                      - "MBR-010"
+                      - MBR001
+                      - MBR002
+                      - MBR003
+                      - MBR004
+                      - MBR005
+                      - MBR006
+                      - MBR007
+                      - MBR008
+                      - MBR009
+                      - MBR010
                     federationApproval: true
                     structure:
-                      president: "MBR-001"
-                      vicePresident: "MBR-002"
-                      treasurer: "MBR-003"
-                      secretary: "MBR-004"
+                      president: MBR001
+                      vicePresident: MBR002
+                      treasurer: MBR003
+                      secretary: MBR004
       responses:
         '201':
-          description: Liste des collectivités créées avec succès
+          description: Liste des collectivités créées
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Collectivity'
-              example:
-                - id: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
-                  officialNumber: null
-                  officialName: null
-                  location: Ambatondrazaka
-                  structure:
-                    president:
-                      id: "MBR-001"
-                      firstName: Jean
-                      lastName: Rakoto
-                      # ... autres champs
-                    vicePresident:
-                      id: "MBR-002"
-                      firstName: Marie
-                      lastName: Rabe
-                    treasurer:
-                      id: "MBR-003"
-                      firstName: Paul
-                      lastName: Razafy
-                    secretary:
-                      id: "MBR-004"
-                      firstName: Jeanne
-                      lastName: Randria
-                  members: [] # liste complète des membres
         '400':
-          description: Requête invalide (approbation fédérale manquante ou structure incomplète)
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Un ou plusieurs membres référencés sont introuvables
+          $ref: '#/components/responses/NotFound'
 
-  '/members':
-    post:
-      tags:
-        - Membres
-      summary: Créer un ou plusieurs membres
+  /collectivities/{id}:
+    get:
+      tags: [Collectivités]
+      summary: Obtenir les détails d'une collectivité
       description: |
-        Admettre de nouveaux membres dans une collectivité existante.
-        Vérifie les parrains, le paiement des frais d'adhésion et des cotisations.
+        **Nouveau dans la version 0.0.4**
+        Retourne la collectivité correspondant à l'identifiant fourni, avec la liste complète de ses membres inscrits.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+      responses:
+        '200':
+          description: Détails de la collectivité avec la liste de ses membres
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectivityDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collectivities/{id}/informations:
+    put:
+      tags: [Collectivités]
+      summary: Attribuer un numéro et un nom officiels
+      description: |
+        Action réservée à la fédération. Une fois attribués, ces identifiants ne peuvent plus être modifiés.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficialIdentifiersRequest'
+            example:
+              officialNumber: COL-NAT-2026-001
+              officialName: Collectivité Rizicole du Lac Alaotra
+      responses:
+        '200':
+          description: Identifiants attribués avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collectivity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Identifiants déjà attribués
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: IDENTIFIERS_ALREADY_ASSIGNED
+                message: Cette collectivité possède déjà un numéro et un nom officiels.
+
+  /collectivities/{id}/financialAccounts:
+    get:
+      tags: [Comptes Financiers]
+      summary: Obtenir la liste des comptes financiers d'une collectivité
+      description: |
+        **Nouveau dans la version 0.0.4**
+        Retourne la liste des comptes (caisse, service mobile money, banque) d'une collectivité avec leur solde à une date donnée.
+        Le paramètre `at` permet de spécifier la date à laquelle on souhaite obtenir le solde.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+        - name: at
+          in: query
+          required: true
+          description: Date à laquelle on souhaite obtenir le solde des comptes (format ISO 8601 YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "2026-04-23"
+      responses:
+        '200':
+          description: Liste des comptes financiers avec leur solde à la date spécifiée
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialAccount'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+
+  /collectivities/{id}/membershipFees:
+    post:
+      tags: [Cotisations]
+      summary: Créer une ou plusieurs cotisations pour une collectivité
+      description: |
+        Enregistre une liste de cotisations (périodiques ou ponctuelles) pour une collectivité.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateMembershipFee'
+            example:
+              - memberId: MBR001
+                type: PERIODIQUE_MENSUELLE
+                amount: 20000
+                paymentMode: MOBILE_MONEY
+                transactionReference: OM-2026-001
+                collectionDate: "2026-04-23"
+      responses:
+        '201':
+          description: Cotisations créées avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipFee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags: [Cotisations]
+      summary: Récupérer la liste des cotisations d'une collectivité
+      description: |
+        Retourne la liste des cotisations existantes pour une collectivité, avec possibilité de filtrage.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [PERIODIQUE_MENSUELLE, PERIODIQUE_ANNUELLE, PONCTUELLE]
+        - name: memberId
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Liste paginée des cotisations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageMembershipFees'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+
+  /collectivities/{id}/transactions:
+    get:
+      tags: [Transactions]
+      summary: Récupérer l'historique des transactions d'une collectivité
+      description: |
+        Retourne la liste des transactions financières d'une collectivité pour une période donnée.
+      parameters:
+        - $ref: '#/components/parameters/CollectivityId'
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-01-01"
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2026-04-30"
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Liste des transactions pour la période spécifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageTransactions'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+
+  /members:
+    post:
+      tags: [Membres]
+      summary: Admettre un ou plusieurs nouveaux membres
+      description: |
+        Enregistre une liste de nouveaux membres dans une collectivité.
+        Vérifie les conditions d'admission (parrains, paiements).
       requestBody:
         required: true
         content:
@@ -112,25 +300,22 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/CreateMember'
-            examples:
-              creationMembre:
-                summary: Exemple de création d'un membre junior
-                value:
-                  - firstName: Lova
-                    lastName: Andrianina
-                    birthDate: "1998-05-15"
-                    gender: FEMALE
-                    address: Lot 12 Bis Antananarivo
-                    profession: Agricultrice
-                    phoneNumber: 261341234567
-                    email: lova.andrianina@example.mg
-                    occupation: JUNIOR
-                    collectivityIdentifier: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
-                    referees:
-                      - "MBR-005"
-                      - "MBR-006"
-                    registrationFeePaid: true
-                    membershipDuesPaid: true
+            example:
+              - firstName: Jean
+                lastName: Rakoto
+                birthDate: "1995-03-20"
+                gender: MALE
+                address: Lot II H 45, Ambatondrazaka
+                profession: Agriculteur
+                phoneNumber: 261341234567
+                email: jean.rakoto@example.mg
+                occupation: JUNIOR
+                collectivityIdentifier: COL001
+                referees:
+                  - MBR010
+                  - MBR022
+                registrationFeePaid: true
+                membershipDuesPaid: true
       responses:
         '201':
           description: Liste des membres créés avec succès
@@ -141,133 +326,120 @@ paths:
                 items:
                   $ref: '#/components/schemas/Member'
         '400':
-          description: |
-            Erreur de validation :
-            - Parrains insuffisants ou non éligibles
-            - Paiement des frais d'adhésion ou des cotisations manquant
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Collectivité ou membre introuvable
+          $ref: '#/components/responses/NotFound'
 
-  '/collectivities/{collectivityId}/identifiers':
-    patch:
-      tags:
-        - Identifiants officiels
-      summary: Attribuer un numéro et un nom officiels à une collectivité
+  /members/{id}/payments:
+    post:
+      tags: [Membres]
+      summary: Enregistrer un ou plusieurs paiements effectués par un membre
       description: |
-        **Fonctionnalité J (ajoutée le 22 avril 2026)**  
-        Réservé à la fédération. Permet d'assigner un numéro unique (ex: COL-NAT-2026-001) et un nom officiel 
-        à une collectivité existante. Une fois attribués, ces champs ne peuvent plus être modifiés.
+        Permet d'enregistrer une liste de paiements (frais d'adhésion, cotisations) effectués par un membre.
       parameters:
-        - name: collectivityId
-          in: path
-          required: true
-          description: Identifiant interne de la collectivité (généré lors de la création)
-          schema:
-            type: string
-            example: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
+        - $ref: '#/components/parameters/MemberId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - officialNumber
-                - officialName
-              properties:
-                officialNumber:
-                  type: string
-                  description: Numéro officiel unique attribué par la fédération
-                  example: "COL-NAT-2026-001"
-                officialName:
-                  type: string
-                  description: Nom officiel de la collectivité (doit être unique)
-                  example: "Collectivité Rizicole du Lac Alaotra"
-            examples:
-              attributionReussie:
-                summary: Exemple d'attribution d'identifiants
-                value:
-                  officialNumber: "COL-NAT-2026-001"
-                  officialName: "Collectivité Rizicole du Lac Alaotra"
+              type: array
+              items:
+                $ref: '#/components/schemas/CreatePayment'
+            example:
+              - amount: 50000
+                paymentMode: MOBILE_MONEY
+                transactionReference: OM-2026-789456
+                paymentDate: "2026-04-23"
+                type: REGISTRATION_FEE
       responses:
-        '200':
-          description: Identifiants attribués avec succès. Retourne la collectivité mise à jour.
+        '201':
+          description: Paiements enregistrés avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Collectivity'
-              example:
-                id: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
-                officialNumber: "COL-NAT-2026-001"
-                officialName: "Collectivité Rizicole du Lac Alaotra"
-                location: Ambatondrazaka
-                structure:
-                  president:
-                    id: "MBR-001"
-                    firstName: Jean
-                    lastName: Rakoto
-                    # ...
-                members: []
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
         '400':
-          description: Requête invalide (champs requis manquants ou identifiants déjà utilisés)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: "DUPLICATE_IDENTIFIERS"
-                message: "Le numéro ou le nom officiel est déjà utilisé par une autre collectivité."
-        '403':
-          description: Action interdite – seuls les membres de la fédération peuvent attribuer ces identifiants.
+          $ref: '#/components/responses/BadRequest'
         '404':
-          description: Collectivité introuvable.
-        '409':
-          description: Les identifiants ont déjà été attribués et ne peuvent plus être modifiés.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                code: "IDENTIFIERS_ALREADY_ASSIGNED"
-                message: "Cette collectivité possède déjà un numéro et un nom officiels. Ils ne peuvent pas être changés."
+          $ref: '#/components/responses/NotFound'
+
 
 components:
+  parameters:
+    CollectivityId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant unique de la collectivité
+      schema:
+        type: string
+      example: "COL001"
+
+    MemberId:
+      name: id
+      in: path
+      required: true
+      description: Identifiant unique du membre
+      schema:
+        type: string
+      example: "MBR001"
+
+    PageParam:
+      name: page
+      in: query
+      description: Numéro de la page (commence à 0)
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Nombre d'éléments par page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
   schemas:
-    CreateCollectivity:
-      type: object
-      description: Données nécessaires à la création d'une collectivité
-      required:
-        - location
-        - members
-        - federationApproval
-        - structure
-      properties:
-        location:
-          type: string
-          description: Ville ou localité où la collectivité exerce
-          example: "Ambatondrazaka"
-        members:
-          type: array
-          description: Liste des identifiants des membres fondateurs (minimum 10)
-          minItems: 10
-          items:
-            $ref: '#/components/schemas/MemberIdentifier'
-        federationApproval:
-          type: boolean
-          description: Indique si la fédération a donné son approbation formelle
-          example: true
-        structure:
-          $ref: '#/components/schemas/CreateCollectivityStructure'
-          description: Désignation des membres occupant les postes spécifiques
+    Gender:
+      type: string
+      enum: [MALE, FEMALE]
+
+    MemberOccupation:
+      type: string
+      enum: [JUNIOR, SENIOR, SECRETARY, TREASURER, VICE_PRESIDENT, PRESIDENT]
+
+    PaymentMode:
+      type: string
+      enum: [ESPECE, VIREMENT_BANCAIRE, MOBILE_MONEY]
+
+    FeeType:
+      type: string
+      enum: [PERIODIQUE_MENSUELLE, PERIODIQUE_ANNUELLE, PONCTUELLE]
+
+    PaymentType:
+      type: string
+      enum: [REGISTRATION_FEE, MEMBERSHIP_DUE, PONCTUELLE]
+
+    AccountType:
+      type: string
+      enum: [CAISSE, BANCAIRE, MOBILE_MONEY]
+
+
+    MemberIdentifier:
+      type: string
+      description: Identifiant unique d'un membre
+      example: "MBR001"
 
     CreateCollectivityStructure:
       type: object
-      description: Identifiants des membres occupant les postes de direction
-      required:
-        - president
-        - vicePresident
-        - treasurer
-        - secretary
+      required: [president, vicePresident, treasurer, secretary]
       properties:
         president:
           $ref: '#/components/schemas/MemberIdentifier'
@@ -278,9 +450,25 @@ components:
         secretary:
           $ref: '#/components/schemas/MemberIdentifier'
 
+    CreateCollectivity:
+      type: object
+      required: [location, members, federationApproval, structure]
+      properties:
+        location:
+          type: string
+          example: "Ambatondrazaka"
+        members:
+          type: array
+          minItems: 10
+          items:
+            $ref: '#/components/schemas/MemberIdentifier'
+        federationApproval:
+          type: boolean
+        structure:
+          $ref: '#/components/schemas/CreateCollectivityStructure'
+
     CollectivityStructure:
       type: object
-      description: Informations détaillées des membres occupant les postes de direction
       properties:
         president:
           $ref: '#/components/schemas/Member'
@@ -293,159 +481,289 @@ components:
 
     Collectivity:
       type: object
-      description: Représentation complète d'une collectivité
       properties:
         id:
           type: string
-          description: Identifiant interne unique généré par le système
-          example: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
+          example: "COL001"
         officialNumber:
           type: string
           nullable: true
-          description: Numéro officiel attribué par la fédération (peut être null)
           example: "COL-NAT-2026-001"
         officialName:
           type: string
           nullable: true
-          description: Nom officiel attribué par la fédération (peut être null)
           example: "Collectivité Rizicole du Lac Alaotra"
         location:
           type: string
-          description: Localité de la collectivité
           example: "Ambatondrazaka"
         structure:
           $ref: '#/components/schemas/CollectivityStructure'
-        members:
-          type: array
-          description: Liste de tous les membres de la collectivité
-          items:
-            $ref: '#/components/schemas/Member'
 
-    MemberIdentifier:
-      type: string
-      description: Identifiant unique d'un membre
-      example: "MBR-001"
-
-    CreateMember:
-      type: object
-      description: Données pour l'admission d'un nouveau membre
+    CollectivityDetail:
       allOf:
-        - $ref: '#/components/schemas/MemberInformation'
-      required:
-        - collectivityIdentifier
-        - referees
-        - registrationFeePaid
-        - membershipDuesPaid
+        - $ref: '#/components/schemas/Collectivity'
+        - type: object
+          properties:
+            members:
+              type: array
+              description: Liste de tous les membres inscrits dans cette collectivité
+              items:
+                $ref: '#/components/schemas/Member'
+
+    OfficialIdentifiersRequest:
+      type: object
+      required: [officialNumber, officialName]
       properties:
-        collectivityIdentifier:
+        officialNumber:
           type: string
-          description: Identifiant de la collectivité d'accueil
-          example: "67a1b2c3-d4e5-6789-abcd-ef0123456789"
-        referees:
-          type: array
-          description: Liste des identifiants des parrains (minimum 2 membres confirmés)
-          minItems: 2
-          items:
-            $ref: '#/components/schemas/MemberIdentifier'
-        registrationFeePaid:
-          type: boolean
-          description: Frais d'adhésion de 50 000 MGA acquittés
-          example: true
-        membershipDuesPaid:
-          type: boolean
-          description: Cotisations annuelles obligatoires acquittées
-          example: true
+          example: "COL-NAT-2026-001"
+        officialName:
+          type: string
+          example: "Collectivité Rizicole du Lac Alaotra"
+
 
     MemberInformation:
       type: object
-      description: Informations personnelles d'un membre
-      required:
-        - firstName
-        - lastName
-        - birthDate
-        - gender
-        - address
-        - profession
-        - phoneNumber
-        - email
-        - occupation
+      required: [firstName, lastName, birthDate, gender, address, profession, phoneNumber, email, occupation]
       properties:
         firstName:
           type: string
-          description: Prénom
-          example: "Lova"
         lastName:
           type: string
-          description: Nom de famille
-          example: "Andrianina"
         birthDate:
           type: string
           format: date
-          description: Date de naissance (YYYY-MM-DD)
-          example: "1998-05-15"
         gender:
           $ref: '#/components/schemas/Gender'
         address:
           type: string
-          description: Adresse complète
-          example: "Lot 12 Bis Antananarivo"
         profession:
           type: string
-          description: Métier exercé
-          example: "Agricultrice"
         phoneNumber:
           type: integer
-          description: Numéro de téléphone au format international (sans +)
-          example: 261341234567
         email:
           type: string
           format: email
-          description: Adresse email valide
-          example: "lova.andrianina@example.mg"
         occupation:
           $ref: '#/components/schemas/MemberOccupation'
 
-    Member:
-      type: object
-      description: Représentation complète d'un membre
+    CreateMember:
       allOf:
         - $ref: '#/components/schemas/MemberInformation'
+        - type: object
+          required: [collectivityIdentifier, referees, registrationFeePaid, membershipDuesPaid]
+          properties:
+            collectivityIdentifier:
+              type: string
+            referees:
+              type: array
+              minItems: 2
+              items:
+                $ref: '#/components/schemas/MemberIdentifier'
+            registrationFeePaid:
+              type: boolean
+            membershipDuesPaid:
+              type: boolean
+
+    Member:
+      allOf:
+        - $ref: '#/components/schemas/MemberInformation'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/MemberIdentifier'
+            referees:
+              type: array
+              items:
+                $ref: '#/components/schemas/Member'
+
+
+    CreateMembershipFee:
+      type: object
+      required: [memberId, type, amount, paymentMode, collectionDate]
+      properties:
+        memberId:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeeType'
+        amount:
+          type: integer
+          minimum: 1
+        paymentMode:
+          $ref: '#/components/schemas/PaymentMode'
+        transactionReference:
+          type: string
+        collectionDate:
+          type: string
+          format: date
+
+    MembershipFee:
+      allOf:
+        - $ref: '#/components/schemas/CreateMembershipFee'
+        - type: object
+          properties:
+            id:
+              type: string
+            federationReversedAmount:
+              type: integer
+            status:
+              type: string
+              enum: [ENREGISTRE, REVERSE_FEDERATION]
+
+    PageMembershipFees:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MembershipFee'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+
+    CreatePayment:
+      type: object
+      required: [amount, paymentMode, paymentDate, type]
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        paymentMode:
+          $ref: '#/components/schemas/PaymentMode'
+        transactionReference:
+          type: string
+        paymentDate:
+          type: string
+          format: date
+        type:
+          $ref: '#/components/schemas/PaymentType'
+
+    Payment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+        - type: object
+          properties:
+            id:
+              type: string
+            memberId:
+              type: string
+
+    Transaction:
+      type: object
       properties:
         id:
-          $ref: '#/components/schemas/MemberIdentifier'
-        referees:
+          type: string
+        date:
+          type: string
+          format: date
+        amount:
+          type: integer
+        type:
+          type: string
+          enum: [CREDIT, DEBIT]
+        description:
+          type: string
+        paymentMode:
+          $ref: '#/components/schemas/PaymentMode'
+        reference:
+          type: string
+        accountId:
+          type: string
+
+    PageTransactions:
+      type: object
+      properties:
+        content:
           type: array
-          description: Liste des parrains du membre
           items:
-            $ref: '#/components/schemas/Member'
+            $ref: '#/components/schemas/Transaction'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
 
-    Gender:
-      type: string
-      description: Genre du membre
-      enum:
-        - MALE
-        - FEMALE
-
-    MemberOccupation:
-      type: string
-      description: Poste occupé dans la collectivité
-      enum:
-        - JUNIOR
-        - SENIOR
-        - SECRETARY
-        - TREASURER
-        - VICE_PRESIDENT
-        - PRESIDENT
+    FinancialAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "CPT001"
+        type:
+          $ref: '#/components/schemas/AccountType'
+        balance:
+          type: integer
+          description: Solde du compte à la date spécifiée
+        currency:
+          type: string
+          default: "MGA"
+        holderName:
+          type: string
+          nullable: true
+        bankName:
+          type: string
+          nullable: true
+          enum: [BRED, MCB, BMOI, BOA, BGFI, AFG, ACCES_BANQUE, BAOBAB, SIPEM]
+        accountNumber:
+          type: string
+          nullable: true
+          pattern: '^\d{23}$'
+        mobileMoneyService:
+          type: string
+          nullable: true
+          enum: [ORANGE_MONEY, MVOLA, AIRTEL_MONEY]
+        phoneNumber:
+          type: string
+          nullable: true
 
     Error:
       type: object
-      description: Structure standard d'une réponse d'erreur
       properties:
         code:
           type: string
-          description: Code d'erreur métier
-          example: "IDENTIFIERS_ALREADY_ASSIGNED"
         message:
           type: string
-          description: Message explicatif en français
-          example: "Cette collectivité possède déjà un numéro et un nom officiels. Ils ne peuvent pas être changés."
+        details:
+          type: array
+          items:
+            type: string
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: VALIDATION_ERROR
+            message: Données invalides
+
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NOT_FOUND
+            message: Ressource introuvable
+
+    Forbidden:
+      description: Action non autorisée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: FORBIDDEN
+            message: Vous n'avez pas les droits nécessaires
