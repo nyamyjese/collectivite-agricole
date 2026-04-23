@@ -4,15 +4,26 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class DBConnection {
-    public static Connection getConnection() {
-        try {
-            String JDBC_URL = System.getenv("JDBC_URL");
-            String user = System.getenv("user");
-            String password = System.getenv("password");
-            return DriverManager.getConnection(JDBC_URL, user, password);
+
+    private static DBConnection instance;
+
+    private DBConnection() {}
+
+    public static DBConnection getInstance() {
+        if (instance == null) {
+            instance = new DBConnection();
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        return instance;
+    }
+
+    public Connection getConnection() {
+        try {
+            String jdbcUrl  = System.getenv("JDBC_URL");
+            String user     = System.getenv("user");
+            String password = System.getenv("password");
+            return DriverManager.getConnection(jdbcUrl, user, password);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to connect to database", e);
         }
     }
 }
