@@ -16,7 +16,7 @@ public class DBConnection {
         return instance;
     }
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
         try {
             String jdbcUrl  = System.getenv("JDBC_URL");
             String user     = System.getenv("user");
