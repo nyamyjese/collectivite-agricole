@@ -5,7 +5,7 @@ import com.example.collectivite.dto.CreateCollectivityRequest;
 import com.example.collectivite.dto.MemberRequest;
 import com.example.collectivite.entity.Collectivity;
 import com.example.collectivite.entity.Membership;
-import com.example.collectivite.exception.BadReqestException;
+import com.example.collectivite.exception.BadRequestException;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MembershipRepository;
 import com.example.collectivite.validator.CollectivityCreationValidator;
@@ -35,7 +35,7 @@ public class CollectivityService {
     public Collectivity createCollectivity(CreateCollectivityRequest request) {
         List<String> errors = validator.validate(request);
         if (!errors.isEmpty()) {
-            throw new BadReqestException(String.join("; ", errors));
+            throw new BadRequestException(String.join("; ", errors));
         }
 
         Connection conn = null;
