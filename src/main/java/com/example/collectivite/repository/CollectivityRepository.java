@@ -5,6 +5,7 @@ import com.example.collectivite.entity.Collectivity;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.Optional;
 
 public class CollectivityRepository {
 
@@ -71,8 +72,7 @@ public class CollectivityRepository {
 
     public boolean existsByUniqueNumber(String uniqueNumber) {
         String sql = """
-        SELECT COUNT(id, unique_number, unique_name , speciality , creation_date,
-               city , annual_contribution , authorization_date) 
+        SELECT COUNT(1) 
         FROM collectivity 
         WHERE unique_number = ?     
         """;
@@ -98,5 +98,42 @@ public class CollectivityRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Error checking unique name", e);
         }
+    }
+
+    public Optional<Collectivity> findById(Integer id) {
+        String sql = """
+        SELECT id, unique_number, unique_name, specialty, creation_date,
+               city, annual_contribution, authorization_date
+        FROM collectivity
+        WHERE id = ?
+        """;
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(mapRow(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding collectivity by id", e);
+        }
+    }
+
+    private Collectivity mapRow(ResultSet rs) throws SQLException {
+        Collectivity collectivity = new Collectivity();
+        collectivity.setId(rs.getInt("id"));
+        collectivity.setUniqueNumber(rs.getString("unique_number"));
+        collectivity.setUniqueName(rs.getString("unique_name"));
+        collectivity.setSpecialty(rs.getString("specialty"));
+        collectivity.setCreationDate(rs.getDate("creation_date").toLocalDate());
+        collectivity.setCity(rs.getString("city"));
+        collectivity.setAnnualContribution(rs.getBigDecimal("annual_contribution"));
+        collectivity.setAuthorizationDate(rs.getDate("authorization_date").toLocalDate());
+        return collectivity;
     }
 }
