@@ -7,7 +7,7 @@ public class DBConnection {
 
     private static DBConnection instance;
 
-    private DBConnection() {}
+    public DBConnection() {}
 
     public static DBConnection getInstance() {
         if (instance == null) {
