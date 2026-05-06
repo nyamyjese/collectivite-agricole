@@ -6,7 +6,7 @@ import com.example.collectivite.dto.MemberResponse;
 import com.example.collectivite.dto.SponsorshipRequest;
 import com.example.collectivite.entity.*;
 import com.example.collectivite.enums.MemberStatus;
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 import com.example.collectivite.exception.AdmissionException;
 import com.example.collectivite.repository.*;
 import com.example.collectivite.validator.AdmissionValidator;
@@ -70,7 +70,7 @@ public class MemberAdmissionService {
             Membership membership = new Membership();
             membership.setMemberId(newMember.getId());
             membership.setCollectivityId(request.getCollectiviteId());
-            membership.setPoste(Poste.JUNIOR_MEMBER);
+            membership.setPoste(MemberOccupation.JUNIOR);
             membership.setStartDate(LocalDate.now());
             membership.setEndDate(null);
             membershipRepository.save(membership);
@@ -109,7 +109,7 @@ public class MemberAdmissionService {
             response.setJoinDate(newMember.getJoinDate());
             response.setStatus(MemberStatus.ACTIVE);
             response.setCollectiviteId(request.getCollectiviteId());
-            response.setPoste(Poste.JUNIOR_MEMBER);
+            response.setPoste(MemberOccupation.JUNIOR);
             response.setMessage("Admission successful");
             return response;
 

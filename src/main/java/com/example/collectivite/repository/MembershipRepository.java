@@ -2,7 +2,7 @@ package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
 import com.example.collectivite.entity.Membership;
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ public class MembershipRepository {
     public Membership save(Membership membership) {
         String sql = """
             INSERT INTO membership
-                (membre_id, collectivity_id, poste, start_date, end_date)
-            VALUES (?, ?, ?::poste, ?, ?)
+                (membre_id, collectivity_id, memberOccupation, start_date, end_date)
+            VALUES (?, ?, ?::memberOccupation, ?, ?)
             RETURNING id
             """;
 
@@ -51,7 +51,7 @@ public class MembershipRepository {
 
     public Optional<Membership> findActiveByMember(Integer memberId) {
         String sql = """
-            SELECT id, membre_id, collectivity_id, poste, start_date, end_date
+            SELECT id, membre_id, collectivity_id, memberOccupation, start_date, end_date
             FROM membership
             WHERE membre_id = ? AND end_date IS NULL
             """;
@@ -74,7 +74,7 @@ public class MembershipRepository {
 
     public List<Membership> findActiveByCollectivity(Integer collectivityId) {
         String sql = """
-            SELECT id, membre_id, collectivity_id, poste, start_date, end_date
+            SELECT id, membre_id, collectivity_id, memberOccupation, start_date, end_date
             FROM membership
             WHERE collectivity_id = ? AND end_date IS NULL
             """;
@@ -116,10 +116,10 @@ public class MembershipRepository {
         }
     }
 
-    public boolean isPositionOccupied(Integer collectivityId, Poste poste) {
+    public boolean isPositionOccupied(Integer collectivityId, MemberOccupation memberOccupation) {
         String sql = """
             SELECT COUNT(1) FROM federation.appartenance
-            WHERE collectivity_id = ? AND poste = ?::poste
+            WHERE collectivity_id = ? AND memberOccupation = ?::memberOccupation
               AND end_date IS NULL
             """;
 
@@ -127,7 +127,7 @@ public class MembershipRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, collectivityId);
-            ps.setString(2, poste.name());
+            ps.setString(2, memberOccupation.name());
             ResultSet rs = ps.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
@@ -142,7 +142,7 @@ public class MembershipRepository {
         m.setId(rs.getInt("id"));
         m.setMemberId(rs.getInt("membre_id"));
         m.setCollectivityId(rs.getInt("collectivity_id"));
-        m.setPoste(Poste.valueOf(rs.getString("poste")));
+        m.setPoste(MemberOccupation.valueOf(rs.getString("memberOccupation")));
         m.setStartDate(rs.getDate("start_date").toLocalDate());
         Date endDate = rs.getDate("end_date");
         if (endDate != null) {

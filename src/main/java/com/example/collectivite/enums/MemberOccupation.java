@@ -1,16 +1,11 @@
 package com.example.collectivite.enums;
 
-public enum Poste {
-    PRESIDENT,
-    PRESIDENT_ADJOINT,
-    TREASURER,
-    SECRETARY,
-    CONFIRMED_MEMBER,
-    JUNIOR_MEMBER;
+public enum MemberOccupation {
+    PRESIDENT, VICE_PRESIDENT, SECRETARY, TREASURER, SENIOR, JUNIOR;
 
     public boolean specificPoste(){
         return this == PRESIDENT
-                || this == PRESIDENT_ADJOINT
+                || this == VICE_PRESIDENT
                 || this == TREASURER
                 || this == SECRETARY;
     }

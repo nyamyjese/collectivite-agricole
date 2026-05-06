@@ -3,7 +3,7 @@ package com.example.collectivite.repository;
 import com.example.collectivite.config.DBConnection;
 import com.example.collectivite.enums.AccountType;
 import com.example.collectivite.entity.MobileMoneyAccount;
-import com.example.collectivite.enums.MobileMoneyService;
+import com.example.collectivite.enums.MobileBankingService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -104,7 +104,7 @@ public class MobileMoneyAccountRepository {
         mm.setCurrency(rs.getString("currency"));
         mm.setCreationDate(rs.getDate("creation_date").toLocalDate());
         mm.setMobileMoneyService(
-                MobileMoneyService.valueOf(rs.getString("service")));
+                MobileBankingService.valueOf(rs.getString("service")));
         mm.setPhoneNumber(rs.getString("phone_number"));
         return mm;
     }

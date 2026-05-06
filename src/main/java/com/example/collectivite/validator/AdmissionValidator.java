@@ -4,7 +4,7 @@ import com.example.collectivite.dto.AdmitMemberRequest;
 import com.example.collectivite.dto.SponsorshipRequest;
 import com.example.collectivite.entity.Member;
 import com.example.collectivite.entity.Membership;
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MemberRepository;
 import com.example.collectivite.repository.MembershipRepository;
@@ -50,7 +50,7 @@ public class AdmissionValidator {
                     continue;
                 }
                 Membership sponsorMembership = membershipRepository.findActiveByMember(sponsorId).orElse(null);
-                if (sponsorMembership == null || sponsorMembership.getPoste() != Poste.CONFIRMED_MEMBER) {
+                if (sponsorMembership == null || sponsorMembership.getPoste() != MemberOccupation.SENIOR) {
                     errors.add("Sponsor " + sponsorId + " is not a confirmed member");
                 }
                 int seniorityMonths = memberRepository.getMembershipDurationInMonths(sponsorId);

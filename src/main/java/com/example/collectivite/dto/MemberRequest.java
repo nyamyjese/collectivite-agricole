@@ -1,14 +1,14 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 
 public class MemberRequest {
     private Integer memberId;
-    private Poste poste;
+    private MemberOccupation memberOccupation;
 
-    public MemberRequest(Integer memberId, Poste poste) {
+    public MemberRequest(Integer memberId, MemberOccupation memberOccupation) {
         this.memberId = memberId;
-        this.poste = poste;
+        this.memberOccupation = memberOccupation;
     }
 
     public Integer getMemberId() {
@@ -19,11 +19,11 @@ public class MemberRequest {
         this.memberId = memberId;
     }
 
-    public Poste getPoste() {
-        return poste;
+    public MemberOccupation getPoste() {
+        return memberOccupation;
     }
 
-    public void setPoste(Poste poste) {
-        this.poste = poste;
+    public void setPoste(MemberOccupation memberOccupation) {
+        this.memberOccupation = memberOccupation;
     }
 }

@@ -32,7 +32,7 @@ CREATE TYPE statut_membre AS ENUM (
     'SUSPENDU'
     );
 
-CREATE TYPE poste AS ENUM (
+CREATE TYPE memberOccupation AS ENUM (
     'PRESIDENT',
     'PRESIDENT_ADJOINT',
     'TRESORIER',
@@ -136,7 +136,7 @@ CREATE TABLE appartenance (
                                          id                  SERIAL          PRIMARY KEY,
                                          membre_id           INT             NOT NULL REFERENCES membre(id),
                                          collectivite_id     INT             NOT NULL REFERENCES collectivite(id),
-                                         poste               poste NOT NULL,
+                                         memberOccupation               memberOccupation NOT NULL,
                                          date_debut          DATE            NOT NULL DEFAULT CURRENT_DATE,
                                          date_fin            DATE            NULL,
 
@@ -147,7 +147,7 @@ CREATE TABLE appartenance (
                                              daterange(date_debut, COALESCE(date_fin, '9999-12-31')) WITH &&
                                              ) WHERE (date_fin IS NULL),
                                          CONSTRAINT chk_poste_unique_actif CHECK (
-                                             poste IN ('MEMBRE_CONFIRME', 'MEMBRE_JUNIOR')
+                                             memberOccupation IN ('MEMBRE_CONFIRME', 'MEMBRE_JUNIOR')
                                                  OR date_fin IS NOT NULL
                                              )
 );
@@ -169,7 +169,7 @@ CREATE TABLE mandat (
                                    membre_id           INT         NOT NULL REFERENCES membre(id),
                                    collectivite_id     INT         NULL REFERENCES collectivite(id),
                                    est_federation      BOOLEAN     NOT NULL DEFAULT FALSE,
-                                   poste               poste NOT NULL,
+                                   memberOccupation               memberOccupation NOT NULL,
                                    annee_debut         INT         NOT NULL,
                                    annee_fin           INT         NOT NULL,
 
@@ -178,17 +178,17 @@ CREATE TABLE mandat (
                                            OR (collectivite_id IS NULL AND est_federation = TRUE)
                                        ),
                                    CONSTRAINT chk_poste_mandat CHECK (
-                                       poste IN ('PRESIDENT','PRESIDENT_ADJOINT','TRESORIER','SECRETAIRE')
+                                       memberOccupation IN ('PRESIDENT','PRESIDENT_ADJOINT','TRESORIER','SECRETAIRE')
                                        ),
-                                   CONSTRAINT uq_mandat_annee UNIQUE (collectivite_id, poste, annee_debut)
+                                   CONSTRAINT uq_mandat_annee UNIQUE (collectivite_id, memberOccupation, annee_debut)
 );
 
 
 CREATE VIEW federation.v_nb_mandats_par_membre AS
-SELECT membre_id, collectivite_id, est_federation, poste,
+SELECT membre_id, collectivite_id, est_federation, memberOccupation,
        COUNT(*) AS nb_mandats
 FROM mandat
-GROUP BY membre_id, collectivite_id, est_federation, poste;
+GROUP BY membre_id, collectivite_id, est_federation, memberOccupation;
 
 
 -- 2.5 PARRAINAGE (B-2 : au moins 2 parrains, regle collectivite)

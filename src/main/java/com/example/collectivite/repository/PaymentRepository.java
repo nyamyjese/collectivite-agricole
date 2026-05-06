@@ -1,7 +1,7 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.enums.ModePayment;
+import com.example.collectivite.enums.PaymentMode;
 import com.example.collectivite.entity.Payment;
 
 import java.sql.*;
@@ -126,7 +126,7 @@ public class PaymentRepository {
         payment.setMemberId(rs.getInt("member_id"));
         payment.setCollectivityId(rs.getInt("collectivity_id"));
         payment.setAmount(rs.getBigDecimal("amount"));
-        payment.setMode(ModePayment.valueOf(rs.getString("mode")));
+        payment.setMode(PaymentMode.valueOf(rs.getString("mode")));
         payment.setReference(rs.getString("reference"));
         payment.setPaymentDate(rs.getDate("payment_date").toLocalDate());
         return payment;

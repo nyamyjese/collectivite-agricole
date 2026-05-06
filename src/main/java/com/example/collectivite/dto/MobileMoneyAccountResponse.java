@@ -1,21 +1,21 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.MobileMoneyService;
+import com.example.collectivite.enums.MobileBankingService;
 
 public class MobileMoneyAccountResponse extends AccountResponse {
-    private MobileMoneyService mobileMoneyService;
+    private MobileBankingService mobileBankingService;
     private String phoneNumber;
 
     public MobileMoneyAccountResponse() {
         super();
     }
 
-    public MobileMoneyService getMobileMoneyService() {
-        return mobileMoneyService;
+    public MobileBankingService getMobileMoneyService() {
+        return mobileBankingService;
     }
 
-    public void setMobileMoneyService(MobileMoneyService mobileMoneyService) {
-        this.mobileMoneyService = mobileMoneyService;
+    public void setMobileMoneyService(MobileBankingService mobileBankingService) {
+        this.mobileBankingService = mobileBankingService;
     }
 
     public String getPhoneNumber() {

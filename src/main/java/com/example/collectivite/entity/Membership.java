@@ -1,6 +1,6 @@
 package com.example.collectivite.entity;
 
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 
 import java.time.LocalDate;
 
@@ -8,7 +8,7 @@ public class Membership {
     private Integer id ;
     private Integer memberId;
     private Integer collectivityId;
-    private Poste poste;
+    private MemberOccupation memberOccupation;
     private LocalDate startDate;
     private LocalDate endDate;
 
@@ -18,13 +18,13 @@ public class Membership {
     public Membership(Integer id,
                       Integer memberId,
                       Integer collectivityId,
-                      Poste poste,
+                      MemberOccupation memberOccupation,
                       LocalDate startDate,
                       LocalDate endDate) {
         this.id = id;
         this.memberId = memberId;
         this.collectivityId = collectivityId;
-        this.poste = poste;
+        this.memberOccupation = memberOccupation;
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -57,12 +57,12 @@ public class Membership {
         this.collectivityId = collectivityId;
     }
 
-    public Poste getPoste() {
-        return poste;
+    public MemberOccupation getPoste() {
+        return memberOccupation;
     }
 
-    public void setPoste(Poste poste) {
-        this.poste = poste;
+    public void setPoste(MemberOccupation memberOccupation) {
+        this.memberOccupation = memberOccupation;
     }
 
     public LocalDate getStartDate() {

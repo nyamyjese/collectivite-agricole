@@ -1,7 +1,7 @@
 package com.example.collectivite.dto;
 
 import com.example.collectivite.enums.Gender;
-import com.example.collectivite.enums.ModePayment;
+import com.example.collectivite.enums.PaymentMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,7 +21,7 @@ public class AdmitMemberRequest {
     private List<SponsorshipRequest> sponsorshipRequests;
 
     private BigDecimal amountPaid;
-    private ModePayment modePayment;
+    private PaymentMode paymentMode;
     private String referenceTransaction;
 
     public Integer getCollectiviteId() {
@@ -112,12 +112,12 @@ public class AdmitMemberRequest {
         this.amountPaid = amountPaid;
     }
 
-    public ModePayment getModePayment() {
-        return modePayment;
+    public PaymentMode getModePayment() {
+        return paymentMode;
     }
 
-    public void setModePayment(ModePayment modePayment) {
-        this.modePayment = modePayment;
+    public void setModePayment(PaymentMode paymentMode) {
+        this.paymentMode = paymentMode;
     }
 
     public String getReferenceTransaction() {

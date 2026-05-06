@@ -1,6 +1,6 @@
 package com.example.collectivite.entity;
 
-import com.example.collectivite.enums.ModePayment;
+import com.example.collectivite.enums.PaymentMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,14 +10,14 @@ public class Payment {
     private Integer memberId;
     private Integer collectivityId;
     private BigDecimal amount;
-    private ModePayment mode;
+    private PaymentMode mode;
     private String reference;
     private LocalDate paymentDate;
 
     public Payment() {}
 
     public Payment(Integer id, Integer memberId, Integer collectivityId,
-                   BigDecimal amount, ModePayment mode, String reference,
+                   BigDecimal amount, PaymentMode mode, String reference,
                    LocalDate paymentDate) {
         this.id = id;
         this.memberId = memberId;
@@ -40,8 +40,8 @@ public class Payment {
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public ModePayment getMode() { return mode; }
-    public void setMode(ModePayment mode) { this.mode = mode; }
+    public PaymentMode getMode() { return mode; }
+    public void setMode(PaymentMode mode) { this.mode = mode; }
 
     public String getReference() { return reference; }
     public void setReference(String reference) { this.reference = reference; }

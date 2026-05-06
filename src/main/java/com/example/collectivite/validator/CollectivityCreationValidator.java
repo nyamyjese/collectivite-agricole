@@ -2,7 +2,7 @@ package com.example.collectivite.validator;
 
 import com.example.collectivite.dto.CreateCollectivityRequest;
 import com.example.collectivite.dto.MemberRequest;
-import com.example.collectivite.enums.Poste;
+import com.example.collectivite.enums.MemberOccupation;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MemberRepository;
 import com.example.collectivite.repository.MembershipRepository;
@@ -47,10 +47,10 @@ public class CollectivityCreationValidator {
                 errors.add("At least 5 members must have seniority >= 6 months");
             }
 
-            boolean hasPresident = members.stream().anyMatch(m -> m.getPoste() == Poste.PRESIDENT);
-            boolean hasVicePresident = members.stream().anyMatch(m -> m.getPoste() == Poste.PRESIDENT_ADJOINT);
-            boolean hasTreasurer = members.stream().anyMatch(m -> m.getPoste() == Poste.TREASURER);
-            boolean hasSecretary = members.stream().anyMatch(m -> m.getPoste() == Poste.SECRETARY);
+            boolean hasPresident = members.stream().anyMatch(m -> m.getPoste() == MemberOccupation.PRESIDENT);
+            boolean hasVicePresident = members.stream().anyMatch(m -> m.getPoste() == MemberOccupation.VICE_PRESIDENT);
+            boolean hasTreasurer = members.stream().anyMatch(m -> m.getPoste() == MemberOccupation.TREASURER);
+            boolean hasSecretary = members.stream().anyMatch(m -> m.getPoste() == MemberOccupation.SECRETARY);
             if (!hasPresident) errors.add("President position must be assigned");
             if (!hasVicePresident) errors.add("Vice-president position must be assigned");
             if (!hasTreasurer) errors.add("Treasurer position must be assigned");

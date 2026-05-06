@@ -1,13 +1,13 @@
 package com.example.collectivite.entity;
 
 import com.example.collectivite.enums.AccountType;
-import com.example.collectivite.enums.MobileMoneyService;
+import com.example.collectivite.enums.MobileBankingService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class MobileMoneyAccount extends Account {
-    private MobileMoneyService mobileMoneyService;
+    private MobileBankingService mobileBankingService;
     private String phoneNumber;
 
     public MobileMoneyAccount(){
@@ -22,20 +22,20 @@ public class MobileMoneyAccount extends Account {
                               BigDecimal balance ,
                               String currency ,
                               LocalDate creationDate ,
-                              MobileMoneyService mobileMoneyService,
+                              MobileBankingService mobileBankingService,
                               String phoneNumber){
         super(id, collectivityId , isFederation,
                 AccountType.MOBILE_MONEY, titular, balance, currency, creationDate);
-        this.mobileMoneyService = mobileMoneyService;
+        this.mobileBankingService = mobileBankingService;
         this.phoneNumber = phoneNumber;
     }
 
-    public MobileMoneyService getMobileMoneyService() {
-        return mobileMoneyService;
+    public MobileBankingService getMobileMoneyService() {
+        return mobileBankingService;
     }
 
-    public void setMobileMoneyService(MobileMoneyService mobileMoneyService) {
-        this.mobileMoneyService = mobileMoneyService;
+    public void setMobileMoneyService(MobileBankingService mobileBankingService) {
+        this.mobileBankingService = mobileBankingService;
     }
 
     public String getPhoneNumber() {
