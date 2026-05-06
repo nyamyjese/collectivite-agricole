@@ -1,4 +1,4 @@
-package com.example.collectivite.entity;
+package com.example.collectivite.enums;
 
 public enum Bank {
     BRED,

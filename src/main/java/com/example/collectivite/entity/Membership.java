@@ -1,5 +1,7 @@
 package com.example.collectivite.entity;
 
+import com.example.collectivite.enums.Poste;
+
 import java.time.LocalDate;
 
 public class Membership {

@@ -1,6 +1,6 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.entity.ModePayment;
+import com.example.collectivite.enums.ModePayment;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

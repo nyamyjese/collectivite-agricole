@@ -1,8 +1,8 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.entity.AccountType;
-import com.example.collectivite.entity.Bank;
+import com.example.collectivite.enums.AccountType;
+import com.example.collectivite.enums.Bank;
 import com.example.collectivite.entity.BankAccount;
 
 import java.sql.Connection;

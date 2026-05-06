@@ -5,6 +5,8 @@ import com.example.collectivite.dto.AdmitMemberRequest;
 import com.example.collectivite.dto.MemberResponse;
 import com.example.collectivite.dto.SponsorshipRequest;
 import com.example.collectivite.entity.*;
+import com.example.collectivite.enums.MemberStatus;
+import com.example.collectivite.enums.Poste;
 import com.example.collectivite.exception.AdmissionException;
 import com.example.collectivite.repository.*;
 import com.example.collectivite.validator.AdmissionValidator;

@@ -1,5 +1,7 @@
 package com.example.collectivite.entity;
 
+import com.example.collectivite.enums.ModePayment;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

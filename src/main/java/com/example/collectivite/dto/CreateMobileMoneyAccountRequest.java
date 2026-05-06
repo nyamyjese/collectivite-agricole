@@ -1,6 +1,6 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.entity.MobileMoneyService;
+import com.example.collectivite.enums.MobileMoneyService;
 
 public class CreateMobileMoneyAccountRequest {
     private Integer collectivityId;

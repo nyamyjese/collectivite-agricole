@@ -1,8 +1,5 @@
 package com.example.collectivite.exception;
 
-import com.example.collectivite.entity.AccountType;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class AccountException extends RuntimeException {

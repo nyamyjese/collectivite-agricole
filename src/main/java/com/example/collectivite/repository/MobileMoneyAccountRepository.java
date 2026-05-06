@@ -1,9 +1,9 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.entity.AccountType;
+import com.example.collectivite.enums.AccountType;
 import com.example.collectivite.entity.MobileMoneyAccount;
-import com.example.collectivite.entity.MobileMoneyService;
+import com.example.collectivite.enums.MobileMoneyService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

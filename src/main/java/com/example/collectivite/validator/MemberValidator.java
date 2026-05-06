@@ -2,6 +2,7 @@ package com.example.collectivite.validator;
 
 import com.example.collectivite.entity.Member;
 import com.example.collectivite.entity.Membership;
+import com.example.collectivite.enums.MemberStatus;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MemberRepository;
 import com.example.collectivite.repository.MembershipRepository;
@@ -103,7 +104,7 @@ public class MemberValidator {
         }
 
         Member member = memberOpt.get();
-        if (member.getStatus() != com.example.collectivite.entity.MemberStatus.ACTIVE) {
+        if (member.getStatus() != MemberStatus.ACTIVE) {
             errors.add("Member is not active");
         }
 

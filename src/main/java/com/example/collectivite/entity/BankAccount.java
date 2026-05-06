@@ -1,10 +1,13 @@
 package com.example.collectivite.entity;
 
+import com.example.collectivite.enums.AccountType;
+import com.example.collectivite.enums.Bank;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class BankAccount extends Account {
-    private Bank   bank;
+    private Bank bank;
     private String accountNumber;  // 23 chiffres
 
     public BankAccount() {

@@ -1,7 +1,7 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.entity.MemberStatus;
-import com.example.collectivite.entity.Poste;
+import com.example.collectivite.enums.MemberStatus;
+import com.example.collectivite.enums.Poste;
 
 import java.time.LocalDate;
 

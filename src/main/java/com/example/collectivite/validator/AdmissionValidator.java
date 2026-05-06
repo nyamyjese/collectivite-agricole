@@ -4,7 +4,7 @@ import com.example.collectivite.dto.AdmitMemberRequest;
 import com.example.collectivite.dto.SponsorshipRequest;
 import com.example.collectivite.entity.Member;
 import com.example.collectivite.entity.Membership;
-import com.example.collectivite.entity.Poste;
+import com.example.collectivite.enums.Poste;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MemberRepository;
 import com.example.collectivite.repository.MembershipRepository;

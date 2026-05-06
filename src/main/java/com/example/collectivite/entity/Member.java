@@ -1,5 +1,8 @@
 package com.example.collectivite.entity;
 
+import com.example.collectivite.enums.Gender;
+import com.example.collectivite.enums.MemberStatus;
+
 import java.time.LocalDate;
 
 public class Member {

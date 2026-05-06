@@ -7,7 +7,7 @@ import com.example.collectivite.dto.CreateMobileMoneyAccountRequest;
 import com.example.collectivite.dto.CreatePaymentRequest;
 import com.example.collectivite.dto.MobileMoneyAccountResponse;
 import com.example.collectivite.entity.Account;
-import com.example.collectivite.entity.AccountType;
+import com.example.collectivite.enums.AccountType;
 import com.example.collectivite.entity.BankAccount;
 import com.example.collectivite.entity.MobileMoneyAccount;
 import com.example.collectivite.repository.AccountRepository;

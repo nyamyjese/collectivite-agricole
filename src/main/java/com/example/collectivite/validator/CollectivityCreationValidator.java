@@ -2,7 +2,7 @@ package com.example.collectivite.validator;
 
 import com.example.collectivite.dto.CreateCollectivityRequest;
 import com.example.collectivite.dto.MemberRequest;
-import com.example.collectivite.entity.Poste;
+import com.example.collectivite.enums.Poste;
 import com.example.collectivite.repository.CollectivityRepository;
 import com.example.collectivite.repository.MemberRepository;
 import com.example.collectivite.repository.MembershipRepository;

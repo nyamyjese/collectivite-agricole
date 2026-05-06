@@ -1,5 +1,8 @@
 package com.example.collectivite.entity;
 
+import com.example.collectivite.enums.AccountType;
+import com.example.collectivite.enums.MobileMoneyService;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

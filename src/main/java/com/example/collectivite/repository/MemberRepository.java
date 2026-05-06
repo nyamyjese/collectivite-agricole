@@ -1,9 +1,9 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.entity.Gender;
+import com.example.collectivite.enums.Gender;
 import com.example.collectivite.entity.Member;
-import com.example.collectivite.entity.MemberStatus;
+import com.example.collectivite.enums.MemberStatus;
 
 import java.sql.*;
 import java.util.Optional;

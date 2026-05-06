@@ -1,7 +1,7 @@
 package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.entity.ModePayment;
+import com.example.collectivite.enums.ModePayment;
 import com.example.collectivite.entity.Payment;
 
 import java.sql.*;

@@ -1,6 +1,6 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.entity.Bank;
+import com.example.collectivite.enums.Bank;
 
 public class CreateBankAccountRequest {
     private Integer collectivityId;

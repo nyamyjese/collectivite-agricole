@@ -2,7 +2,7 @@ package com.example.collectivite.repository;
 
 import com.example.collectivite.config.DBConnection;
 import com.example.collectivite.entity.Membership;
-import com.example.collectivite.entity.Poste;
+import com.example.collectivite.enums.Poste;
 
 import java.sql.*;
 import java.util.ArrayList;

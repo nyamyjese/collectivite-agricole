@@ -1,7 +1,7 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.entity.Gender;
-import com.example.collectivite.entity.ModePayment;
+import com.example.collectivite.enums.Gender;
+import com.example.collectivite.enums.ModePayment;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
