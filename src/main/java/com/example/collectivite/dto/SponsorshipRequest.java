@@ -1,19 +1,19 @@
 package com.example.collectivite.dto;
 
 public class SponsorshipRequest {
-    private Integer sponsorshipId;
+    private String sponsorshipId;
     private String relation;
 
-    public SponsorshipRequest(Integer sponsorshipId, String relation) {
+    public SponsorshipRequest(String sponsorshipId, String relation) {
         this.sponsorshipId = sponsorshipId;
         this.relation = relation;
     }
 
-    public Integer getSponsorshipId() {
+    public String getSponsorshipId() {
         return sponsorshipId;
     }
 
-    public void setSponsorshipId(Integer sponsorshipId) {
+    public void setSponsorshipId(String sponsorshipId) {
         this.sponsorshipId = sponsorshipId;
     }
 

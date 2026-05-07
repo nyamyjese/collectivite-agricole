@@ -1,21 +1,21 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.MobileBankingService;
+import com.example.collectivite.entity.MobileMoneyService;
 
 public class CreateMobileMoneyAccountRequest {
-    private Integer collectivityId;
+    private String collectivityId;
     private boolean isFederation;
     private String titular;
-    private MobileBankingService mobileBankingService;
+    private MobileMoneyService mobileMoneyService;
     private String phoneNumber;
 
     public CreateMobileMoneyAccountRequest() {}
 
-    public Integer getCollectivityId() {
+    public String getCollectivityId() {
         return collectivityId;
     }
 
-    public void setCollectivityId(Integer collectivityId) {
+    public void setCollectivityId(String collectivityId) {
         this.collectivityId = collectivityId;
     }
 
@@ -35,12 +35,12 @@ public class CreateMobileMoneyAccountRequest {
         this.titular = titular;
     }
 
-    public MobileBankingService getMobileMoneyService() {
-        return mobileBankingService;
+    public MobileMoneyService getMobileMoneyService() {
+        return mobileMoneyService;
     }
 
-    public void setMobileMoneyService(MobileBankingService mobileBankingService) {
-        this.mobileBankingService = mobileBankingService;
+    public void setMobileMoneyService(MobileMoneyService mobileMoneyService) {
+        this.mobileMoneyService = mobileMoneyService;
     }
 
     public String getPhoneNumber() {

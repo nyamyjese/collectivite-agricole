@@ -1,14 +1,14 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.Gender;
-import com.example.collectivite.enums.PaymentMode;
+import com.example.collectivite.entity.Gender;
+import com.example.collectivite.entity.ModePayment;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 public class AdmitMemberRequest {
-    private Integer collectiviteId;
+    private String collectiviteId;
     private String name;
     private String lastName;
     private LocalDate birthDate;
@@ -21,14 +21,14 @@ public class AdmitMemberRequest {
     private List<SponsorshipRequest> sponsorshipRequests;
 
     private BigDecimal amountPaid;
-    private PaymentMode paymentMode;
+    private ModePayment paymentMode;
     private String referenceTransaction;
 
     public String getCollectiviteId() {
         return collectiviteId;
     }
 
-    public void setCollectiviteId(Integer collectiviteId) {
+    public void setCollectiviteId(String collectiviteId) {
         this.collectiviteId = collectiviteId;
     }
 
@@ -112,11 +112,11 @@ public class AdmitMemberRequest {
         this.amountPaid = amountPaid;
     }
 
-    public PaymentMode getModePayment() {
+    public ModePayment getPaymentMode() {
         return paymentMode;
     }
 
-    public void setModePayment(PaymentMode paymentMode) {
+    public void setPaymentMode(ModePayment paymentMode) {
         this.paymentMode = paymentMode;
     }
 

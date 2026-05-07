@@ -84,7 +84,7 @@ public class MemberAdmissionService {
             payment.setMemberId(newMember.getId());
             payment.setCollectivityId(request.getCollectiviteId());
             payment.setAmount(request.getAmountPaid());
-            payment.setMode(request.getModePayment());
+            payment.setMode(request.getPaymentMode());
             payment.setReference(request.getReferenceTransaction());
             payment.setPaymentDate(LocalDate.now());
             paymentRepository.save(payment);

@@ -3,17 +3,29 @@ package com.example.collectivite.dto;
 import java.math.BigDecimal;
 
 public class MembershipFeeResponse {
-    private Integer id;
-    private Integer collectivityId;
+    private String id;
+    private String collectivityId;
     private String type;
     private BigDecimal amount;
     private String description;
     private String message;
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
-    public Integer getCollectivityId() { return collectivityId; }
-    public void setCollectivityId(Integer collectivityId) { this.collectivityId = collectivityId; }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getCollectivityId() {
+        return collectivityId;
+    }
+
+    public void setCollectivityId(String collectivityId) {
+        this.collectivityId = collectivityId;
+    }
+
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
     public BigDecimal getAmount() { return amount; }

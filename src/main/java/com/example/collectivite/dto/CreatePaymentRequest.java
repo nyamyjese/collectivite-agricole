@@ -1,7 +1,7 @@
 package com.example.collectivite.dto;
 
 public class CreatePaymentRequest {
-    private Integer collectivityId ;
+    private String collectivityId ;
     private boolean isFederation ;
     private String titular;
 
@@ -11,7 +11,7 @@ public class CreatePaymentRequest {
         return collectivityId;
     }
 
-    public void setCollectivityId(Integer collectivityId) {
+    public void setCollectivityId(String collectivityId) {
         this.collectivityId = collectivityId;
     }
 

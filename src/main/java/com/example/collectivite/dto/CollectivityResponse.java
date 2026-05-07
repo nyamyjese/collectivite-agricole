@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CollectivityResponse {
-    private Integer id;
+    private String id;
     private String uniqueNumber;
     private String uniqueName;
     private String specialty;
@@ -15,8 +15,12 @@ public class CollectivityResponse {
     private LocalDate authorizationDate;
     private List<MemberResponse> members;
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getUniqueNumber() { return uniqueNumber; }
     public void setUniqueNumber(String uniqueNumber) { this.uniqueNumber = uniqueNumber; }
     public String getUniqueName() { return uniqueName; }

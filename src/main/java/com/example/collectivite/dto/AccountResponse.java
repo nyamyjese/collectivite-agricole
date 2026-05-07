@@ -1,13 +1,13 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.AccountType;
+import com.example.collectivite.entity.AccountType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class AccountResponse {
-    private Integer id;
-    private Integer collectivityId;
+    private String id;
+    private String collectivityId;
     private boolean isFederation;
     private AccountType accountType;
     private String titular;
@@ -18,19 +18,19 @@ public class AccountResponse {
 
     public AccountResponse() {}
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Integer getCollectivityId() {
+    public String getCollectivityId() {
         return collectivityId;
     }
 
-    public void setCollectivityId(Integer collectivityId) {
+    public void setCollectivityId(String collectivityId) {
         this.collectivityId = collectivityId;
     }
 

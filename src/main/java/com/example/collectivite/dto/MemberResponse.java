@@ -1,12 +1,12 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.MemberStatus;
-import com.example.collectivite.enums.MemberOccupation;
+import com.example.collectivite.entity.MemberStatus;
+import com.example.collectivite.entity.Poste;
 
 import java.time.LocalDate;
 
 public class MemberResponse {
-    private Integer id;
+    private String id;
     private String name;
     private String lastName;
     private LocalDate birthDate;
@@ -16,15 +16,15 @@ public class MemberResponse {
     private String email;
     private LocalDate joinDate;
     private MemberStatus status;
-    private Integer collectiviteId;
-    private MemberOccupation memberOccupation;
+    private String collectiviteId;
+    private Poste poste;
     private String message;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -100,20 +100,20 @@ public class MemberResponse {
         this.status = status;
     }
 
-    public Integer getCollectiviteId() {
+    public String getCollectiviteId() {
         return collectiviteId;
     }
 
-    public void setCollectiviteId(Integer collectiviteId) {
+    public void setCollectiviteId(String collectiviteId) {
         this.collectiviteId = collectiviteId;
     }
 
-    public MemberOccupation getPoste() {
-        return memberOccupation;
+    public Poste getPoste() {
+        return poste;
     }
 
-    public void setPoste(MemberOccupation memberOccupation) {
-        this.memberOccupation = memberOccupation;
+    public void setPoste(Poste poste) {
+        this.poste = poste;
     }
 
     public String getMessage() {

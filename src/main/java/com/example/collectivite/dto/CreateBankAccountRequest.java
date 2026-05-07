@@ -1,28 +1,24 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.Bank;
+import com.example.collectivite.entity.Bank;
 
 public class CreateBankAccountRequest {
-    private Integer collectivityId;
+    private String collectivityId;
     private boolean isFederation;
     private String titular;
     private Bank bank;
     private String accountNumber;
 
     public CreateBankAccountRequest() {}
-
-    public Integer getCollectivityId() {
+    public String getCollectivityId() {
         return collectivityId;
     }
-
-    public void setCollectivityId(Integer collectivityId) {
+    public void setCollectivityId(String collectivityId) {
         this.collectivityId = collectivityId;
     }
-
     public boolean isFederation() {
         return isFederation;
     }
-
     public void setFederation(boolean federation) {
         isFederation = federation;
     }

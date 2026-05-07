@@ -1,6 +1,6 @@
 package com.example.collectivite.dto;
 
-import com.example.collectivite.enums.Bank;
+import com.example.collectivite.entity.Bank;
 
 public class BankAccountResponse extends AccountResponse {
     private Bank bank;

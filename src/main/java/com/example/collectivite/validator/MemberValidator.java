@@ -22,16 +22,14 @@ public class MemberValidator {
         this.collectivityRepository = collectivityRepository;
     }
 
-    // Tous les paramètres `Integer` sont maintenant `String`
     public List<String> validateNewMember(Member member, String collectivityId) {
         List<String> errors = new ArrayList<>();
-        // ... même logique, aucune référence à des Integer
         return errors;
     }
 
     public List<String> validateExistingMemberForAdmission(String memberId, String collectivityId) {
         List<String> errors = new ArrayList<>();
-        // ...
+
         return errors;
     }
 
@@ -45,17 +43,16 @@ public class MemberValidator {
 
     public List<String> validateSponsorEligibility(String sponsorId, String collectivityId) {
         List<String> errors = new ArrayList<>();
-        // ...
+
         return errors;
     }
 
     public List<String> validateReadmission(String memberId, String collectivityId) {
         List<String> errors = new ArrayList<>();
-        // ...
+
         return errors;
     }
 
-    // Les fonctions utilitaires restent inchangées
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }

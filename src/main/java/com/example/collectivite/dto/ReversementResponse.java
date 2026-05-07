@@ -13,7 +13,6 @@ public class ReversementResponse {
     private int totalReversedToFederation;
     private List<ReversementDetail> details;
 
-    // Classe interne pour le détail
     public static class ReversementDetail {
         private String contributionId;
         private LocalDate collectionDate;

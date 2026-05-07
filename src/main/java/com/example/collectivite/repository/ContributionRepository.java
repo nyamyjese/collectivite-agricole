@@ -15,7 +15,6 @@ import java.util.Map;
 public class ContributionRepository {
 
 
-     // Enregistre une nouvelle cotisation en utilisant la connexion fournie.
     public Contribution save(Connection conn, Contribution contribution) throws SQLException {
         String sql = "INSERT INTO contribution (id, member_id, collectivity_id, type, amount, payment_mode, " +
                 "transaction_reference, collection_date, federation_reversed_amount, status) " +
