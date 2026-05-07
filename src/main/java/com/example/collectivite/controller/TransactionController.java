@@ -27,10 +27,9 @@ public class TransactionController {
 
     @GetMapping("/collectivities/{collectivityId}/transactions")
     public ResponseEntity<List<TransactionResponse>> getTransactions(
-            @PathVariable Integer collectivityId,
+            @PathVariable String collectivityId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-
         List<TransactionResponse> transactions = paymentService.getCollectivityTransactions(collectivityId, startDate, endDate);
         return ResponseEntity.ok(transactions);
     }

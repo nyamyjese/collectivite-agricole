@@ -3,8 +3,7 @@ package com.example.collectivite.service;
 import com.example.collectivite.config.DBConnection;
 import com.example.collectivite.dto.*;
 import com.example.collectivite.entity.*;
-import com.example.collectivite.exception.BadRequestException;
-import com.example.collectivite.exception.ResourceNotFoundException;
+import com.example.collectivite.exception.*;
 import com.example.collectivite.repository.*;
 import com.example.collectivite.validator.CollectivityCreationValidator;
 
@@ -39,12 +38,10 @@ public class CollectivityService {
         if (!errors.isEmpty()) {
             throw new BadRequestException(String.join("; ", errors));
         }
-
         Connection conn = null;
         try {
             conn = dbConnection.getConnection();
             conn.setAutoCommit(false);
-
             Collectivity collectivity = new Collectivity();
             collectivity.setUniqueNumber(request.getUniqueNumber());
             collectivity.setUniqueName(request.getUniqueName());
@@ -64,7 +61,6 @@ public class CollectivityService {
                 membership.setEndDate(null);
                 membershipRepository.save(membership);
             }
-
             conn.commit();
             return collectivity;
         } catch (SQLException e) {
@@ -75,10 +71,9 @@ public class CollectivityService {
         }
     }
 
-    public CollectivityResponse getCollectivityById(Integer id) {
+    public CollectivityResponse getCollectivityById(String id) {
         Collectivity c = collectivityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Collectivity not found with id " + id));
-
         List<Membership> memberships = membershipRepository.findActiveByCollectivity(id);
         List<MemberResponse> memberResponseList = new ArrayList<>();
         for (Membership m : memberships) {
@@ -99,7 +94,6 @@ public class CollectivityService {
                 memberResponseList.add(mr);
             });
         }
-
         CollectivityResponse resp = new CollectivityResponse();
         resp.setId(c.getId());
         resp.setUniqueNumber(c.getUniqueNumber());
@@ -113,28 +107,24 @@ public class CollectivityService {
         return resp;
     }
 
-    public CollectivityResponse updateCollectivityInformation(Integer id, UpdateCollectivityInformationRequest request) {
+    public CollectivityResponse updateCollectivityInformation(String id, UpdateCollectivityInformationRequest request) {
         Collectivity c = collectivityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Collectivity not found"));
-
         if (c.getUniqueNumber() != null && !c.getUniqueNumber().isEmpty()) {
             throw new BadRequestException("Unique number already assigned and cannot be changed");
         }
         if (c.getUniqueName() != null && !c.getUniqueName().isEmpty()) {
             throw new BadRequestException("Unique name already assigned and cannot be changed");
         }
-
         if (collectivityRepository.existsByUniqueNumber(request.getUniqueNumber())) {
             throw new BadRequestException("Unique number already used by another collectivity");
         }
         if (collectivityRepository.existsByUniqueName(request.getUniqueName())) {
             throw new BadRequestException("Unique name already used by another collectivity");
         }
-
         c.setUniqueNumber(request.getUniqueNumber());
         c.setUniqueName(request.getUniqueName());
         collectivityRepository.save(c);
-
         return getCollectivityById(id);
     }
 }

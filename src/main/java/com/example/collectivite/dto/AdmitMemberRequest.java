@@ -24,7 +24,7 @@ public class AdmitMemberRequest {
     private PaymentMode paymentMode;
     private String referenceTransaction;
 
-    public Integer getCollectiviteId() {
+    public String getCollectiviteId() {
         return collectiviteId;
     }
 

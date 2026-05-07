@@ -8,18 +8,17 @@ import java.sql.*;
 import java.util.Optional;
 
 public class CollectivityRepository {
-
     private final DBConnection db;
 
     public CollectivityRepository(DBConnection db) {
         this.db = db;
     }
 
-    public boolean existsById(Integer id) {
+    public boolean existsById(String id) {
         String sql = "SELECT COUNT(1) FROM collectivity WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
@@ -28,11 +27,11 @@ public class CollectivityRepository {
         }
     }
 
-    public BigDecimal getAnnualContribution(Integer id) {
+    public BigDecimal getAnnualContribution(String id) {
         String sql = "SELECT annual_contribution FROM collectivity WHERE id = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getBigDecimal("annual_contribution");
@@ -62,7 +61,7 @@ public class CollectivityRepository {
             ps.setDate(7, Date.valueOf(collectivity.getAuthorizationDate()));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                collectivity.setId(rs.getInt("id"));
+                collectivity.setId(rs.getString("id"));
             }
             return collectivity;
         } catch (SQLException e) {
@@ -71,11 +70,7 @@ public class CollectivityRepository {
     }
 
     public boolean existsByUniqueNumber(String uniqueNumber) {
-        String sql = """
-        SELECT COUNT(1) 
-        FROM collectivity 
-        WHERE unique_number = ?     
-        """;
+        String sql = "SELECT COUNT(1) FROM collectivity WHERE unique_number = ?";
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, uniqueNumber);
@@ -100,40 +95,35 @@ public class CollectivityRepository {
         }
     }
 
-    public Optional<Collectivity> findById(Integer id) {
+    public Optional<Collectivity> findById(String id) {
         String sql = """
-        SELECT id, unique_number, unique_name, specialty, creation_date,
-               city, annual_contribution, authorization_date
-        FROM collectivity
-        WHERE id = ?
-        """;
-
+            SELECT id, unique_number, unique_name, specialty, creation_date,
+                   city, annual_contribution, authorization_date
+            FROM collectivity WHERE id = ?
+            """;
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
+            ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
                 return Optional.of(mapRow(rs));
             }
             return Optional.empty();
-
         } catch (SQLException e) {
             throw new RuntimeException("Error finding collectivity by id", e);
         }
     }
 
     private Collectivity mapRow(ResultSet rs) throws SQLException {
-        Collectivity collectivity = new Collectivity();
-        collectivity.setId(rs.getInt("id"));
-        collectivity.setUniqueNumber(rs.getString("unique_number"));
-        collectivity.setUniqueName(rs.getString("unique_name"));
-        collectivity.setSpecialty(rs.getString("specialty"));
-        collectivity.setCreationDate(rs.getDate("creation_date").toLocalDate());
-        collectivity.setCity(rs.getString("city"));
-        collectivity.setAnnualContribution(rs.getBigDecimal("annual_contribution"));
-        collectivity.setAuthorizationDate(rs.getDate("authorization_date").toLocalDate());
-        return collectivity;
+        Collectivity c = new Collectivity();
+        c.setId(rs.getString("id"));
+        c.setUniqueNumber(rs.getString("unique_number"));
+        c.setUniqueName(rs.getString("unique_name"));
+        c.setSpecialty(rs.getString("specialty"));
+        c.setCreationDate(rs.getDate("creation_date").toLocalDate());
+        c.setCity(rs.getString("city"));
+        c.setAnnualContribution(rs.getBigDecimal("annual_contribution"));
+        c.setAuthorizationDate(rs.getDate("authorization_date").toLocalDate());
+        return c;
     }
 }

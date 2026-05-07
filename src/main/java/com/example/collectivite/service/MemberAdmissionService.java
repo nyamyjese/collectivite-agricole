@@ -1,12 +1,8 @@
 package com.example.collectivite.service;
 
 import com.example.collectivite.config.DBConnection;
-import com.example.collectivite.dto.AdmitMemberRequest;
-import com.example.collectivite.dto.MemberResponse;
-import com.example.collectivite.dto.SponsorshipRequest;
+import com.example.collectivite.dto.*;
 import com.example.collectivite.entity.*;
-import com.example.collectivite.enums.MemberStatus;
-import com.example.collectivite.enums.MemberOccupation;
 import com.example.collectivite.exception.AdmissionException;
 import com.example.collectivite.repository.*;
 import com.example.collectivite.validator.AdmissionValidator;
@@ -47,12 +43,10 @@ public class MemberAdmissionService {
         if (!errors.isEmpty()) {
             throw new AdmissionException(errors);
         }
-
         Connection conn = null;
         try {
             conn = dbConnection.getConnection();
             conn.setAutoCommit(false);
-
 
             Member newMember = new Member();
             newMember.setName(request.getName());
@@ -70,7 +64,7 @@ public class MemberAdmissionService {
             Membership membership = new Membership();
             membership.setMemberId(newMember.getId());
             membership.setCollectivityId(request.getCollectiviteId());
-            membership.setPoste(MemberOccupation.JUNIOR);
+            membership.setPoste(Poste.JUNIOR_MEMBER);
             membership.setStartDate(LocalDate.now());
             membership.setEndDate(null);
             membershipRepository.save(membership);
@@ -109,23 +103,18 @@ public class MemberAdmissionService {
             response.setJoinDate(newMember.getJoinDate());
             response.setStatus(MemberStatus.ACTIVE);
             response.setCollectiviteId(request.getCollectiviteId());
-            response.setPoste(MemberOccupation.JUNIOR);
+            response.setPoste(Poste.JUNIOR_MEMBER);
             response.setMessage("Admission successful");
             return response;
-
         } catch (SQLException e) {
-            if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            }
+            if (conn != null) { try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); } }
             throw new RuntimeException("Transaction error while admitting member", e);
         } finally {
-            if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            if (conn != null) { try { conn.setAutoCommit(true); conn.close(); } catch (SQLException e) { e.printStackTrace(); } }
         }
     }
 
-    private Integer getSponsorCommunityId(Integer sponsorId) {
+    private String getSponsorCommunityId(String sponsorId) {
         return membershipRepository.findActiveByMember(sponsorId)
                 .map(Membership::getCollectivityId)
                 .orElseThrow(() -> new RuntimeException("Sponsor has no active community"));

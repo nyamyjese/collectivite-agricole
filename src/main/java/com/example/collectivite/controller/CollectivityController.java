@@ -25,7 +25,6 @@ public class CollectivityController {
         MembershipRepository membershipRepo = new MembershipRepository(db);
         MemberRepository memberRepo = new MemberRepository(db);
         CollectivityCreationValidator validator = new CollectivityCreationValidator(memberRepo, membershipRepo, collectivityRepo);
-
         this.collectivityService = new CollectivityService(collectivityRepo, membershipRepo, memberRepo, db, validator);
     }
 
@@ -41,13 +40,13 @@ public class CollectivityController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CollectivityResponse> getCollectivity(@PathVariable Integer id) {
+    public ResponseEntity<CollectivityResponse> getCollectivity(@PathVariable String id) {
         CollectivityResponse resp = collectivityService.getCollectivityById(id);
         return ResponseEntity.ok(resp);
     }
 
     @PutMapping("/{id}/informations")
-    public ResponseEntity<CollectivityResponse> updateInformations(@PathVariable Integer id,
+    public ResponseEntity<CollectivityResponse> updateInformations(@PathVariable String id,
                                                                    @RequestBody UpdateCollectivityInformationRequest request) {
         CollectivityResponse resp = collectivityService.updateCollectivityInformation(id, request);
         return ResponseEntity.ok(resp);

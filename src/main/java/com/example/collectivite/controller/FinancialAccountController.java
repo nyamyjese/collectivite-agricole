@@ -2,11 +2,17 @@ package com.example.collectivite.controller;
 
 import com.example.collectivite.config.DBConnection;
 import com.example.collectivite.dto.AccountResponse;
-import com.example.collectivite.repository.*;
+import com.example.collectivite.repository.CollectivityRepository;
+import com.example.collectivite.repository.MemberRepository;
+import com.example.collectivite.repository.MembershipRepository;
+import com.example.collectivite.repository.PaymentRepository;
 import com.example.collectivite.service.PaymentService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,9 +33,8 @@ public class FinancialAccountController {
 
     @GetMapping("/collectivities/{collectivityId}/financialAccounts")
     public ResponseEntity<List<AccountResponse>> getFinancialAccounts(
-            @PathVariable Integer collectivityId,
+            @PathVariable String collectivityId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate at) {
-
         List<AccountResponse> accounts = paymentService.getFinancialAccounts(collectivityId, at);
         return ResponseEntity.ok(accounts);
     }

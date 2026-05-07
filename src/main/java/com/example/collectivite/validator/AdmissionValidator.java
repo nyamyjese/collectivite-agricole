@@ -1,13 +1,8 @@
 package com.example.collectivite.validator;
 
-import com.example.collectivite.dto.AdmitMemberRequest;
-import com.example.collectivite.dto.SponsorshipRequest;
-import com.example.collectivite.entity.Member;
-import com.example.collectivite.entity.Membership;
-import com.example.collectivite.enums.MemberOccupation;
-import com.example.collectivite.repository.CollectivityRepository;
-import com.example.collectivite.repository.MemberRepository;
-import com.example.collectivite.repository.MembershipRepository;
+import com.example.collectivite.dto.*;
+import com.example.collectivite.entity.*;
+import com.example.collectivite.repository.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,7 +25,6 @@ public class AdmissionValidator {
     public List<String> validate(AdmitMemberRequest request) {
         List<String> errors = new ArrayList<>();
 
-
         if (!collectivityRepository.existsById(request.getCollectiviteId())) {
             errors.add("Target collectivity does not exist");
             return errors;
@@ -43,18 +37,18 @@ public class AdmissionValidator {
             int fromTarget = 0;
             int fromOthers = 0;
             for (SponsorshipRequest sr : sponsors) {
-                Integer sponsorId = sr.getSponsorshipId();
+                String sponsorId = String.valueOf(sr.getSponsorshipId());
                 Member sponsor = memberRepository.findById(sponsorId).orElse(null);
                 if (sponsor == null) {
                     errors.add("Sponsor id " + sponsorId + " does not exist");
                     continue;
                 }
                 Membership sponsorMembership = membershipRepository.findActiveByMember(sponsorId).orElse(null);
-                if (sponsorMembership == null || sponsorMembership.getPoste() != MemberOccupation.SENIOR) {
+                if (sponsorMembership == null || sponsorMembership.getPoste() != Poste.CONFIRMED_MEMBER) {
                     errors.add("Sponsor " + sponsorId + " is not a confirmed member");
                 }
                 int seniorityMonths = memberRepository.getMembershipDurationInMonths(sponsorId);
-                if (seniorityMonths < 3) { // 90 days minimum
+                if (seniorityMonths < 3) {
                     errors.add("Sponsor " + sponsorId + " has less than 90 days seniority");
                 }
                 if (sponsorMembership != null && sponsorMembership.getCollectivityId().equals(request.getCollectiviteId())) {
@@ -71,13 +65,11 @@ public class AdmissionValidator {
             }
         }
 
-
         BigDecimal annualContribution = collectivityRepository.getAnnualContribution(request.getCollectiviteId());
         BigDecimal expectedAmount = new BigDecimal("50000").add(annualContribution);
         if (request.getAmountPaid() == null || request.getAmountPaid().compareTo(expectedAmount) < 0) {
             errors.add("Insufficient payment. Expected " + expectedAmount + " MGA (50,000 fees + " + annualContribution + " annual contribution)");
         }
-
 
         if (memberRepository.existsByEmail(request.getEmail())) {
             errors.add("Email already used by another member");

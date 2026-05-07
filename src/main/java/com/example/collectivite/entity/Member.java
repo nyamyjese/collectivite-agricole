@@ -1,12 +1,9 @@
 package com.example.collectivite.entity;
 
-import com.example.collectivite.enums.Gender;
-import com.example.collectivite.enums.MemberStatus;
-
 import java.time.LocalDate;
 
 public class Member {
-    private Integer id;
+    private String id;
     private String name;
     private String firstName;
     private LocalDate birthDate;
@@ -18,17 +15,11 @@ public class Member {
     private LocalDate joinDate;
     private MemberStatus status;
 
-    public Member(Integer id,
-                  String name,
-                  String firstName,
-                  LocalDate birthDate,
-                  Gender gender,
-                  String adress,
-                  String profession,
-                  String phone,
-                  String email,
-                  LocalDate joinDate,
-                  MemberStatus status) {
+    public Member() {}
+
+    public Member(String id, String name, String firstName, LocalDate birthDate,
+                  Gender gender, String adress, String profession, String phone,
+                  String email, LocalDate joinDate, MemberStatus status) {
         this.id = id;
         this.name = name;
         this.firstName = firstName;
@@ -42,96 +33,26 @@ public class Member {
         this.status = status;
     }
 
-    public Member() {
-
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getAdress() {
-        return adress;
-    }
-
-    public void setAdress(String adress) {
-        this.adress = adress;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public LocalDate getJoinDate() {
-        return joinDate;
-    }
-
-    public void setJoinDate(LocalDate joinDate) {
-        this.joinDate = joinDate;
-    }
-
-    public MemberStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(MemberStatus status) {
-        this.status = status;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public LocalDate getBirthDate() { return birthDate; }
+    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+    public Gender getGender() { return gender; }
+    public void setGender(Gender gender) { this.gender = gender; }
+    public String getAdress() { return adress; }
+    public void setAdress(String adress) { this.adress = adress; }
+    public String getProfession() { return profession; }
+    public void setProfession(String profession) { this.profession = profession; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public LocalDate getJoinDate() { return joinDate; }
+    public void setJoinDate(LocalDate joinDate) { this.joinDate = joinDate; }
+    public MemberStatus getStatus() { return status; }
+    public void setStatus(MemberStatus status) { this.status = status; }
 }
-

@@ -25,14 +25,14 @@ public class MembershipFeeController {
     }
 
     @PostMapping("/collectivities/{collectivityId}/membershipFees")
-    public ResponseEntity<MembershipFeeResponse> createFee(@PathVariable Integer collectivityId,
+    public ResponseEntity<MembershipFeeResponse> createFee(@PathVariable String collectivityId,
                                                            @RequestBody MembershipFeeRequest request) {
         MembershipFeeResponse resp = feeService.createFee(collectivityId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     @GetMapping("/collectivities/{collectivityId}/membershipFees")
-    public ResponseEntity<List<MembershipFeeResponse>> listFees(@PathVariable Integer collectivityId) {
+    public ResponseEntity<List<MembershipFeeResponse>> listFees(@PathVariable String collectivityId) {
         List<MembershipFeeResponse> fees = feeService.getFees(collectivityId);
         return ResponseEntity.ok(fees);
     }

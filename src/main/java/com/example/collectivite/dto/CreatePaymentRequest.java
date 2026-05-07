@@ -7,7 +7,7 @@ public class CreatePaymentRequest {
 
     public CreatePaymentRequest(){}
 
-    public Integer getCollectivityId() {
+    public String getCollectivityId() {
         return collectivityId;
     }
 

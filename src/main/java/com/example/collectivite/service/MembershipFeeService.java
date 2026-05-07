@@ -1,7 +1,6 @@
 package com.example.collectivite.service;
 
-import com.example.collectivite.dto.MembershipFeeRequest;
-import com.example.collectivite.dto.MembershipFeeResponse;
+import com.example.collectivite.dto.*;
 import com.example.collectivite.entity.MembershipFee;
 import com.example.collectivite.exception.BadRequestException;
 import com.example.collectivite.repository.CollectivityRepository;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MembershipFeeService {
-
     private final MembershipFeeRepository feeRepository;
     private final CollectivityRepository collectivityRepository;
 
@@ -20,7 +18,7 @@ public class MembershipFeeService {
         this.collectivityRepository = collectivityRepository;
     }
 
-    public MembershipFeeResponse createFee(Integer collectivityId, MembershipFeeRequest request) {
+    public MembershipFeeResponse createFee(String collectivityId, MembershipFeeRequest request) {
         if (!collectivityRepository.existsById(collectivityId)) {
             throw new BadRequestException("Collectivity not found");
         }
@@ -36,7 +34,6 @@ public class MembershipFeeService {
         fee.setType(request.getType());
         fee.setAmount(request.getAmount());
         fee.setDescription(request.getDescription());
-
         fee = feeRepository.save(fee);
 
         MembershipFeeResponse resp = new MembershipFeeResponse();
@@ -49,7 +46,7 @@ public class MembershipFeeService {
         return resp;
     }
 
-    public List<MembershipFeeResponse> getFees(Integer collectivityId) {
+    public List<MembershipFeeResponse> getFees(String collectivityId) {
         if (!collectivityRepository.existsById(collectivityId)) {
             throw new BadRequestException("Collectivity not found");
         }
