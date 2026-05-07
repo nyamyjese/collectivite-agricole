@@ -38,10 +38,9 @@ public class CollectivityCreationValidator {
         if (members == null || members.size() < 10) {
             errors.add("At least 10 initial members required");
         } else {
-            // Vérification de la séniorité (5 membres avec ≥ 6 mois)
             long seniorCount = members.stream()
-                    .map(MemberRequest::getMemberId)                     // String
-                    .map(memberRepository::findById)                    // Optional<Member>
+                    .map(MemberRequest::getMemberId)
+                    .map(memberRepository::findById)
                     .filter(java.util.Optional::isPresent)
                     .map(java.util.Optional::get)
                     .filter(m -> memberRepository.getMembershipDurationInMonths(m.getId()) >= 6)
@@ -50,7 +49,6 @@ public class CollectivityCreationValidator {
                 errors.add("At least 5 members must have seniority >= 6 months");
             }
 
-            // Vérification des postes spécifiques
             boolean hasPresident = members.stream()
                     .anyMatch(m -> m.getPoste() == Poste.PRESIDENT);
             boolean hasVicePresident = members.stream()
@@ -64,7 +62,6 @@ public class CollectivityCreationValidator {
             if (!hasTreasurer) errors.add("Treasurer position must be assigned");
             if (!hasSecretary) errors.add("Secretary position must be assigned");
 
-            // Vérification qu'un membre n'occupe pas plusieurs postes spécifiques
             long distinctMembersForSpecific = members.stream()
                     .filter(m -> m.getPoste().specificPoste())
                     .map(MemberRequest::getMemberId)
